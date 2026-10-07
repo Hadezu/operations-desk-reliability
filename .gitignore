@@ -16,6 +16,7 @@ playwright-report/
 *.tsbuildinfo
 evidence/*.json
 !evidence/manifest.json
+!evidence/deployment.json
 apps/web/public/proof.json
 apps/web/out/
 worker-configuration.d.ts

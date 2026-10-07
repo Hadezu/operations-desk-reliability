@@ -1,12 +1,18 @@
 # Operations Desk
 
+[Live demo](https://operations-desk-reliability.vanya-matyushkin.workers.dev) · [Engineering evidence](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) · [GitHub Actions](https://github.com/Hadezu/operations-desk-reliability/actions)
+
+[![Verification](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml/badge.svg)](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml)
+
 Multi-tenant approvals with Next.js, Node.js/Fastify, PostgreSQL/Prisma and Redis/BullMQ. Create a request, submit it, approve it as a manager, and inspect the audit trail as an observer.
 
 The interesting part is what happens when two decisions collide, a command is repeated, or a worker dies after committing its result.
 
 **Execution evidence:** [machine-readable verification manifest](evidence/manifest.json). The application’s `/proof/` page displays this artifact, including environment, timestamp, commit and a hash of the tested source. Local results are labelled local. A GitHub Actions link appears only after a real run.
 
-**Publication status:** local verification passed: 18 API/database checks, five recovery scenarios, two browser journeys and a local Cloudflare runtime check. No public demo URL or successful hosted CI run is claimed yet. Docker execution and production Cloudflare CPU measurements remain release gates. This is an original synthetic portfolio application, not a customer implementation.
+**Try it in two minutes:** open the live demo and select **Try the demo**. Create and submit a request as Alex, approve it as Sam, then inspect the activity as Jordan. Each visitor receives a separate workspace. No account, installation or personal data is needed. The app runs on Cloudflare Workers Free with Neon Free PostgreSQL; it does not depend on a developer laptop. This is an original synthetic portfolio application, not a customer implementation.
+
+The verification workflow runs 36 API/database assertions across the Prisma and edge SQL adapters, five worker-recovery scenarios, desktop/mobile browser journeys, a Cloudflare runtime check and a separate Docker Compose job. See the exact tested revision and observed results in the evidence artifact; the badge shows the latest workflow status.
 
 ## What can be checked
 
@@ -84,7 +90,7 @@ flowchart TD
   Worker --> Result[Unique persisted report + attempt history]
 ```
 
-The online deployment uses a **Next.js static export**, a Cloudflare Worker API, Hyperdrive and external PostgreSQL. The full environment uses the same business operations through a standalone Fastify server and a BullMQ worker. The public approval flow has `backgroundMode=disabled`; it does not create work that waits forever for an absent worker. The UI points to the worker evidence instead.
+The online deployment uses a **Next.js static export**, a Cloudflare Worker API, Hyperdrive and external PostgreSQL. The full environment uses the same business operations through a standalone Fastify server and a BullMQ worker. Node uses Prisma ORM. The edge API uses a bounded, parameterized Postgres.js adapter to avoid compiling ORM queries on every invocation; both adapters run the same authorization and transaction tests. Shared session joins and atomic demo provisioning minimize database round trips. A PostgreSQL function applies each command, audit and optional outbox intent in one round trip under the caller’s restricted privileges. The public approval flow has `backgroundMode=disabled`; it does not create work that waits forever for an absent worker. The UI points to the worker evidence instead.
 
 Next.js App Router, React, TypeScript, forms, API integration, loading/error states and browser tests are demonstrated. SSR, Server Actions and a live hosted Redis worker are not claimed.
 
@@ -107,6 +113,7 @@ Demo switching is a capability inside an isolated visitor workspace. It changes 
 ## Delivery and recovery semantics
 
 - `Idempotency-Key` is mandatory on create/edit/submit/decision. Same key and normalized payload returns the stored response, including after the request has advanced to a later state.
+- The atomic command function uses PostgreSQL uniqueness to arbitrate duplicate commands and conditional updates to reject stale versions. It is `SECURITY INVOKER`; the same database function is used by Node and Cloudflare.
 - The outbox dispatcher leases rows with `FOR UPDATE SKIP LOCKED`. A crash after publish leaves a lease that can be reclaimed. The deterministic queue ID includes a replay generation.
 - BullMQ attempts three times with exponential backoff. A terminal failure remains in the failed queue and the database. Only a manager can replay a failed event, with a reason; a new generation is audited.
 - The worker commits report + completion audit + outbox state together. A duplicate job reuses the persisted report. Missing queue records are reconciled from the outbox.
@@ -119,11 +126,11 @@ JSON logs carry `request_id`, organization, job and attempt identifiers. The cor
 
 `packages/contracts` contains the Zod input/output/error schemas and the generated [command OpenAPI document](docs/openapi.json). `GET /api/openapi.json` returns the same contract. The current OpenAPI scope is the four idempotent commands; read/session/report routes are listed in [API notes](docs/API.md).
 
-Evidence is regenerated by executing commands, not manually setting pass flags. Each result includes expected behavior, observed result, source and duration. A source fingerprint prevents an ordinary new build from reusing evidence for different code. CI uploads raw results and Playwright traces on failure. The checked-in workflow becomes active when **this directory is published as the repository root**; it does not claim a run inside the surrounding portfolio repository.
+Evidence is regenerated by executing commands, not manually setting pass flags. Each result includes expected behavior, observed result, source and duration. A source fingerprint prevents an ordinary new build from reusing evidence for different code. CI uploads raw results and Playwright traces on failure. This repository is published independently; the checked-in workflow runs against its root. The final CI job merges evidence only after both integration and container jobs succeed. Public deployment observations are collected separately by `scripts/record-deployment.ts`, including the sampled Worker version and CPU distribution.
 
 ## Cost and deployment
 
-See [deployment gates and current free-tier sources](docs/DEPLOYMENT.md). No paid plan, paid container, domain purchase or external messaging service is required for development. Publishing still requires a managed PostgreSQL account, verified database permissions and actual Cloudflare CPU measurements.
+See [deployment gates and current free-tier sources](docs/DEPLOYMENT.md). No paid plan, paid container, domain purchase or external messaging service is required for development. The deployed configuration uses verified Free accounts, a restricted PostgreSQL role and Hyperdrive with query caching disabled. No paid subscription or keep-alive service was enabled.
 
 Free quotas cannot promise uninterrupted service. Static `/proof/` remains independently accessible if the API quota is exhausted. API rate limits, daily demo admission and seven-day retention bound normal demo growth; they do not turn a free tier into an SLA.
 

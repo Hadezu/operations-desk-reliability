@@ -517,6 +517,7 @@ export default function Desk() {
                           <td>
                             <button
                               className="request-title"
+                              disabled={busy}
                               onClick={() => void run(() => details(row))}
                             >
                               {row.title}
@@ -539,6 +540,7 @@ export default function Desk() {
                             <button
                               className="quiet"
                               aria-label={`Open ${row.title}`}
+                              disabled={busy}
                               onClick={() => void run(() => details(row))}
                             >
                               ↗

@@ -1,51 +1,47 @@
-# Deployment gate — zero new paid subscriptions
+# Free deployment and release evidence
 
-Checked against provider documentation on 2026-10-07. The application is prepared for Cloudflare, but a successful dry-run or local `workerd` check is not a deployed production claim.
+Public app: https://operations-desk-reliability.vanya-matyushkin.workers.dev  
+Repository: https://github.com/Hadezu/operations-desk-reliability
 
-## Published free tiers
+## Resources checked on 2026-10-07
 
-| Resource | Published free allowance | Source |
+| Resource | Plan and configuration | Reference |
 |---|---|---|
-| Workers | 100,000 dynamic requests/day; 10 ms CPU per invocation; static asset requests free | [Cloudflare pricing](https://developers.cloudflare.com/workers/platform/pricing/) |
-| Hyperdrive | 100,000 database queries/day on Workers Free | [Hyperdrive pricing](https://developers.cloudflare.com/hyperdrive/platform/pricing/) |
-| Prisma Postgres | $0; no credit card; 200,000 operations/month; 500 MB storage | [Prisma pricing](https://www.prisma.io/pricing) |
+| Cloudflare Workers | Account UI confirmed **Free, $0**; 100,000 dynamic requests/day, 10 ms CPU/invocation; static assets free | [Workers limits](https://developers.cloudflare.com/workers/platform/limits/) |
+| Hyperdrive | Free allowance of 100,000 queries/day; query cache disabled; origin pool capped at five connections | [Hyperdrive pricing](https://developers.cloudflare.com/hyperdrive/platform/pricing/) |
+| Neon PostgreSQL 18 | Account UI confirmed **Free, $0**; displayed 100 CU-hours/month and 1 GB storage; Frankfurt; fixed 0.25 CU, scale-to-zero after five minutes | [Neon pricing](https://neon.com/pricing) |
+| GitHub | Public source and Actions verification; no paid runner or add-on provisioned | [Repository](https://github.com/Hadezu/operations-desk-reliability) |
 
-The Prisma Console workspace was confirmed on Free and a database was created on 2026-10-07. The real connection authenticated as `prisma_migration`, but `CREATE ROLE desk_app` failed with PostgreSQL error `42501: restricted superuser cannot create roles`. This database is **not approved for application deployment**: the runtime must not inherit the migration credential. Neon Free is being evaluated as the PostgreSQL host; Prisma ORM remains the application's database client.
+Provider allowances may change. These observations describe the account at release time, not a promise about future pricing. No paid plan, domain purchase, billable Redis host or monitoring subscription was enabled. Neon wakes automatically for a database request, so the first request after idle may be slower. The application does not rely on a local process.
 
-Use the actual **Free** plans. A paid plan with a small allowance is not equivalent. Do not enable automatic upgrades, purchase a domain, use paid Containers, or put a billable Redis service behind this demo. Workers.dev is sufficient.
+Prisma Postgres was initially tried on Free. Its hosted migration credential rejected `CREATE ROLE desk_app` with PostgreSQL `42501: restricted superuser cannot create roles`. It is not used by this deployment. Neon passed actual runtime-role and privilege-denial checks; Prisma remains the Node ORM and schema/migration tool.
 
-Database operations, HTTP requests and CPU time are different quotas. One approval performs several database operations. The demo admission limit is 40 new workspaces per UTC day; API rate limits are per location/IP, not global billing caps. A workspace is capped at 100 requests per organization. These controls reduce ordinary consumption but do not guarantee that abusive traffic cannot exhaust a free quota.
+## Reproduce a deployment
 
-## Before creating resources
+1. Confirm the actual provider accounts are on Free. A paid plan with an allowance is not equivalent.
+2. Create PostgreSQL and save separate migration-owner and application connection URLs in an ignored environment file. Never commit them or paste them into command history.
+3. Run `npm run db:bootstrap`, then `npm run db:verify-access`. The second command connects as the runtime user and actually attempts denied audit UPDATE/DELETE/TRUNCATE, expiry manipulation and migration-metadata access. It also rejects superuser flags, role memberships and table ownership.
+4. Create Hyperdrive with the **application** credential. Disable query caching: sessions, role changes, CSRF rotation, revocation and optimistic version checks require fresh reads. Limit origin connections to five. See [query caching](https://developers.cloudflare.com/hyperdrive/configuration/query-caching/).
+5. Set your own Worker name, Hyperdrive ID and HTTPS origin in `wrangler.jsonc`. The committed IDs identify the published demo; they grant no credentials and must be replaced for another account.
+6. Run `npm run verify`, `npm run cf:check` and `npx wrangler check startup`. Deploy with `npx wrangler deploy` only after the provider checks. Ordinary verification does not deploy.
+7. Set `PUBLIC_DEMO_ORIGIN` to the HTTPS URL and run `node --import tsx tests/public-smoke.ts`. Set `E2E_BASE_URL` to the same URL and run `npm run test:e2e`.
+8. Capture `npx wrangler tail WORKER_NAME --format json` to an ignored file while testing. Run `node --import tsx scripts/record-deployment.ts PATH_TO_CAPTURE`. It requires both browser journeys, hosted database permissions, at least 30 captured invocations from the smoke-tested version, no invocation errors and CPU p95 at most 10 ms. It publishes only aggregates; raw tail files may contain sensitive headers and must stay private.
+9. Download `release-proof` from the successful Actions run into `evidence/manifest.json`. Build with the matching source. The build includes only evidence whose source hash matches; the deployment observation is merged separately.
 
-1. Sign into Prisma Console and confirm the workspace is Free. No account is assumed to exist.
-2. Confirm direct PostgreSQL access, custom runtime role creation, grants/revokes and `SECURITY DEFINER` functions. Run the provided restricted-role and audit-denial checks against a temporary hosted database. If the provider cannot support these, stop and choose another verified free provider; do not silently connect the application as owner.
-3. Confirm the Cloudflare account is on Workers Free for this deployment. OAuth access is not evidence of the billing plan.
-4. Recheck quotas and connection limits. Configure Hyperdrive's origin pool within the provider's available direct connections. [Prisma connection pooling reference](https://www.prisma.io/docs/postgres/database/connection-pooling).
+## Why the public adapter is smaller
 
-## Prepare and validate
+The first Prisma edge deployment worked but measured well beyond the 10 ms Free CPU budget (demo bootstrap 41–146 ms in the initial sample). That version was not accepted as the finished deployment. The public API now uses a small Postgres.js adapter, parameterized values, allowlisted identifiers and the same shared business operations. Session authentication uses one SQL join; demo provisioning inserts its graph atomically with dependent CTEs. Prisma remains in Node/Fastify and the report worker. Both database adapters execute the same assertion suite, including races and rollback. The `apply_request_command` PostgreSQL function commits command result, request mutation, audit and optional outbox intent in one database call. It is `SECURITY INVOKER`, used by both runtimes, and never gains owner permissions. Domain refusals roll back the function block before returning a typed result; SQL failures roll back the statement.
 
-- Save migration-owner and application connection strings in ignored environment files or a secret manager. Never commit them or paste them into command history.
-- Run `npm run db:bootstrap` with those URLs. It applies migrations, provisions `desk_app`, denies audit mutation, and grants only the bounded expiry cleanup function.
-- Use Hyperdrive for the application role. **Disable Hyperdrive query caching**: sessions, role switching, CSRF rotation, revocation, version reads and approval screens require fresh state. A cached session read can undermine authorization. [Hyperdrive caching](https://developers.cloudflare.com/hyperdrive/configuration/query-caching/).
-- Replace the zero placeholder Hyperdrive ID in `wrangler.jsonc`, set the HTTPS origin and a unique Worker name. The committed configuration is intentionally not a deployable hosted environment.
-- Run `npm run verify`, `npm run cf:check`, and `wrangler check startup`.
-- Deploy only after free-plan and database-permission checks. No deployment is performed by the ordinary verification command.
-- Exercise desktop/mobile workflow, direct unauthorized requests and sign-out on the actual URL. Inspect Workers CPU percentiles and limit errors for demo bootstrap, command processing and proof-page access. Local timings do not establish compliance with the 10 ms production CPU allowance.
-- If measured CPU exceeds Free limits, simplify the public API adapter or change the free deployment architecture. Do not enable the paid plan automatically.
+[Postgres.js with Hyperdrive](https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-drivers-and-libraries/postgres-js/) requires prepared statements; the adapter explicitly enables them and disables unused array-type discovery. Connections are scoped to a Worker request, and Hyperdrive maintains the origin pool. Actual observed CPU values and tested version are in [deployment evidence](../evidence/deployment.json). This is a small synthetic sample, not a load test.
 
-## Local Cloudflare test
+## Quotas and availability
 
-Start the local PostgreSQL helper, build the frontend, then copy `.dev.vars.example` to `.dev.vars`. Set `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` to the local **application-role** PostgreSQL URL in your shell and run `npm run cf:dev`. Only the origin is in `.dev.vars`; the owner credential is not a Worker binding. Use `http://localhost:8787` consistently with the configured origin.
+The demo admits 40 new visitor workspaces per UTC day, with a transaction-level lock to serialize admission across locations. There are per-IP limits of 90 API calls/minute and four demo starts/minute. Each organization can create at most 100 requests. These are usage controls, not an absolute guarantee against quota exhaustion or abusive traffic. Cloudflare quotas are shared with other Workers on the account.
 
-Stop Wrangler before rebuilding on Windows: its asset watcher holds the static export directory open.
+The static UI and `/proof/` are independently served. The UI handles an API failure with a retryable error rather than a false success. A daily demo-admission refusal returns 429 and points to the proof page. Actual provider quota exhaustion is not deliberately induced on the user's account. Free plans provide no guaranteed uninterrupted availability or SLA.
 
-## Release evidence still required
+An hourly scheduled cleanup removes up to 20 workspaces older than seven days through the bounded `SECURITY DEFINER` function. The runtime role cannot rewrite expiry. No keep-alive is needed. No live Redis/BullMQ service is claimed online: reports, failure injection and replay are verified in the full Docker/CI environment. The public flow explicitly disables background reports and creates no work for an absent worker.
 
-- Real public URL and smoke-test timestamp.
-- Repository URL and successful Actions run, including the separate container job.
-- Provider Free plans and enforced resource permissions.
-- Runtime CPU/limit observations and app behavior on quota exhaustion.
-- Real deployment version tied to the verified source revision.
+## Local Cloudflare check
 
-No live Redis/BullMQ claim belongs on the public Cloudflare deployment. Full job execution and failure injection are demonstrated in local/CI PostgreSQL + Redis. Cleanup runs hourly and removes up to 20 expired demo workspaces per invocation. No paid monitoring or keep-alive service is required.
+Build the frontend, copy `.dev.vars.example` to `.dev.vars`, and set `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` to a local **application-role** database URL. Run `npm run cf:dev` at `http://localhost:8787`. The owner credential is never a Worker binding. Stop Wrangler before rebuilding on Windows because its asset watcher holds the output directory open.

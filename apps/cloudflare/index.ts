@@ -1,4 +1,4 @@
-import { connectDatabase } from "../../packages/core/db.js";
+import { connectEdgeDatabase as connectDatabase } from "../../packages/core/edge-db.js";
 import { handleApi } from "../../packages/core/http.js";
 
 function unavailable(status: number, code: string, message: string) {
@@ -35,13 +35,15 @@ export default {
       );
     const db = connectDatabase(env.HYPERDRIVE.connectionString, 1);
     try {
-      return await handleApi(request, {
+      const response = await handleApi(request, {
         db,
         origin: env.APP_ORIGIN,
         backgroundMode: "disabled",
         demoDailyLimit: Number(env.DEMO_DAILY_LIMIT),
         log: (entry) => console.log(JSON.stringify(entry)),
       });
+      response.headers.set("x-deployment-version", env.VERSION.id);
+      return response;
     } catch {
       console.error(JSON.stringify({ event: "api_unavailable" }));
       return unavailable(

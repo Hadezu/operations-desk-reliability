@@ -32,6 +32,9 @@ export async function provisionRole(ownerUrl: string, appUrl: string) {
     await client.query(
       "GRANT EXECUTE ON FUNCTION public.purge_expired_demo_workspaces() TO desk_app",
     );
+    await client.query(
+      "GRANT EXECUTE ON FUNCTION public.apply_request_command(uuid,uuid,text,uuid,text,text,jsonb,text,boolean) TO desk_app",
+    );
     await client.query("REVOKE CREATE ON SCHEMA public FROM PUBLIC");
   } finally {
     await client.end();

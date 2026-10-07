@@ -109,7 +109,7 @@ for (const [name, expected, source, file, args] of steps) {
     for (const suite of report.testResults)
       for (const result of suite.assertionResults)
         checks.push({
-          name: result.title,
+          name: result.fullName,
           expected:
             "Assertion set passes against real PostgreSQL with the restricted application role.",
           observed:

@@ -13,7 +13,31 @@ const empty = {
 let output = empty;
 try {
   const saved = JSON.parse(await readFile("evidence/manifest.json", "utf8"));
-  if (saved.sourceHash === (await sourceHash())) output = saved;
+  if (saved.sourceHash === (await sourceHash())) {
+    output = saved;
+    try {
+      const deployment = JSON.parse(
+        await readFile("evidence/deployment.json", "utf8"),
+      );
+      if (
+        deployment.sourceHash === saved.sourceHash &&
+        deployment.status === "passed"
+      ) {
+        const check = saved.checks.find(
+          (entry: { name: string }) =>
+            entry.name === "Public Cloudflare deployment",
+        );
+        if (check)
+          Object.assign(check, {
+            status: "passed",
+            observed: `HTTPS API and desktop/mobile journeys passed at ${deployment.generatedAt}; restricted Neon role verified. Cloudflare CPU p95 ${deployment.cpu.p95Ms} ms, max ${deployment.cpu.maxMs} ms over ${deployment.cpu.samples} sampled invocations, all successful. Tested version ${deployment.testedVersion}.`,
+            source: "evidence/deployment.json",
+          });
+      }
+    } catch {
+      /* Public deployment evidence is optional for local/CI builds. */
+    }
+  }
 } catch {
   /* Fresh checkout has no evidence until tests execute. */
 }
