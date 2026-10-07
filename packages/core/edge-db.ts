@@ -63,7 +63,7 @@ function decode(row: ObjectValue) {
     ]),
   );
 }
-function session(query: Query) {
+export function databaseSession(query: Query) {
   function model(name: Model) {
     const table = `"${schema[name][0]}"`;
     function where(input: unknown, values: unknown[]): string {
@@ -330,7 +330,7 @@ export function connectEdgeDatabase(
     };
   }
   return {
-    ...session(queryFor(sql)),
+    ...databaseSession(queryFor(sql)),
     async $connect() {
       await sql`SELECT 1`;
     },
@@ -347,7 +347,7 @@ export function connectEdgeDatabase(
           "SELECT set_config('statement_timeout', $1, true), set_config('idle_in_transaction_session_timeout', $1, true)",
           [String(options?.timeout ?? 15000)],
         );
-        return await run(session(query));
+        return await run(databaseSession(query));
       });
       return result as T;
     },

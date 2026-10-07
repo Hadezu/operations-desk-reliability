@@ -1,3 +1,6 @@
 # Local Cloudflare origin only. Database connection is supplied through
 # CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE in the shell.
 APP_ORIGIN=http://localhost:8787
+
+# Set via wrangler secret in production; empty uses local Hyperdrive/TCP.
+NEON_DATABASE_URL=""

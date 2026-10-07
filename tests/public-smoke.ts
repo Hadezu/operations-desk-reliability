@@ -100,6 +100,23 @@ assert.equal(
 checks.push(
   "Idempotent replay, conflicting payload rejection, CSRF and employee authorization",
 );
+const disposable = await (await call("/api/requests", "POST", input)).json();
+const changed = await call(`/api/requests/${disposable.id}`, "PATCH", {
+  ...input,
+  title: "Draft with 'quotes'",
+  version: 1,
+});
+assert.equal(changed.status, 200);
+assert.equal((await changed.json()).title, "Draft with 'quotes'");
+assert.equal(
+  (await call(`/api/requests/${disposable.id}`, "DELETE", { version: 2 }))
+    .status,
+  200,
+);
+assert.equal((await call(`/api/requests/${disposable.id}`)).status, 404);
+checks.push(
+  "Draft edit and atomic deletion through the hosted database transport",
+);
 const org = session.organizations.find(
   (o: { id: string }) => o.id === session.identity.organizationId,
 );

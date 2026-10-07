@@ -75,9 +75,9 @@ try {
     await app.query(`SELECT p.prosecdef,
     has_function_privilege(current_user,p.oid,'EXECUTE') AS executable
     FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
-    WHERE n.nspname='public' AND p.proname IN ('apply_request_command','provision_demo_workspace')`)
+    WHERE n.nspname='public' AND p.proname IN ('apply_request_command','provision_demo_workspace','delete_request_draft')`)
   ).rows;
-  assert.equal(commandRoutine.length, 2);
+  assert.equal(commandRoutine.length, 3);
   for (const routine of commandRoutine) {
     assert.equal(routine.prosecdef, false);
     assert.equal(routine.executable, true);

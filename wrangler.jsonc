@@ -13,6 +13,7 @@
   },
   "observability": { "enabled": true, "head_sampling_rate": 0.1 },
   "version_metadata": { "binding": "VERSION" },
+  "secrets": { "required": ["NEON_DATABASE_URL"] },
   "vars": {
     "APP_ORIGIN": "https://operations-desk-reliability.vanya-matyushkin.workers.dev",
     "DEMO_DAILY_LIMIT": "40",

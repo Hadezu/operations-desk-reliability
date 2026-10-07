@@ -39,6 +39,9 @@ export async function provisionRole(ownerUrl: string, appUrl: string) {
       "GRANT EXECUTE ON FUNCTION public.provision_demo_workspace(jsonb,int) TO desk_app",
     );
     await client.query("REVOKE CREATE ON SCHEMA public FROM PUBLIC");
+    await client.query(
+      "GRANT EXECUTE ON FUNCTION public.delete_request_draft(uuid,uuid,uuid,int,text) TO desk_app",
+    );
   } finally {
     await client.end();
   }

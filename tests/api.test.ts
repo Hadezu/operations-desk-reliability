@@ -352,6 +352,27 @@ describe.each(["Prisma", "edge SQL"])("%s adapter", (adapter) => {
   });
 
   describe("database guarantees and contracts", () => {
+    it("DELETE: stale deletion conflicts; successful deletion retains one audit entry", async () => {
+      const record = await create(a);
+      expect(
+        (await call(a, "DELETE", `/api/requests/${record.id}`, { version: 2 }))
+          .statusCode,
+      ).toBe(409);
+      expect(
+        (
+          await call(a, "DELETE", `/api/requests/${record.id}`, { version: 1 })
+        ).json(),
+      ).toEqual({ deleted: true });
+      expect(
+        await db.request.findUnique({ where: { id: record.id } }),
+      ).toBeNull();
+      expect(
+        await db.auditEvent.count({
+          where: { entityId: record.id, action: "REQUEST_DELETED" },
+        }),
+      ).toBe(1);
+    });
+
     it("OUTBOX: database failure rolls back decision, audit and intent", async () => {
       const record = await create(a);
       await call(a, "POST", `/api/requests/${record.id}/submit`, {

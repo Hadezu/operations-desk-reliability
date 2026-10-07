@@ -1,4 +1,5 @@
 import { connectEdgeDatabase as connectDatabase } from "../../packages/core/edge-db.js";
+import { connectHttpDatabase } from "../../packages/core/http-db.js";
 import { handleApi } from "../../packages/core/http.js";
 
 import {
@@ -57,7 +58,9 @@ export default {
         "RATE_LIMITED",
         "Please wait before starting another demo.",
       );
-    const db = connectDatabase(env.HYPERDRIVE.connectionString, 1);
+    const db = env.NEON_DATABASE_URL
+      ? connectHttpDatabase(env.NEON_DATABASE_URL)
+      : connectDatabase(env.HYPERDRIVE.connectionString, 1);
     try {
       const response = await handleApi(request, {
         db,
@@ -80,7 +83,9 @@ export default {
     }
   },
   async scheduled(_event, env, ctx) {
-    const db = connectDatabase(env.HYPERDRIVE.connectionString, 1);
+    const db = env.NEON_DATABASE_URL
+      ? connectHttpDatabase(env.NEON_DATABASE_URL)
+      : connectDatabase(env.HYPERDRIVE.connectionString, 1);
     try {
       await db.$queryRaw`SELECT public.purge_expired_demo_workspaces()`;
     } finally {

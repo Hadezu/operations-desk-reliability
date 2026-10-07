@@ -184,23 +184,13 @@ export async function deleteDraft(
 ) {
   if (identity.role === "OBSERVER") denied();
   const { version } = SubmitRequest.parse(input);
-  return db.$transaction(async (tx) => {
-    const existing = await tx.request.findFirst({
-      where: { id, ...visibleTo(identity) },
-    });
-    if (!existing) missing();
-    if (existing.ownerId !== identity.memberId) denied();
-    const result = await tx.request.deleteMany({
-      where: {
-        id,
-        organizationId: identity.organizationId,
-        ownerId: identity.memberId,
-        status: "DRAFT",
-        version,
-      },
-    });
-    if (!result.count) conflict();
-    await audit(tx, identity, id, "REQUEST_DELETED", correlationId);
-    return { deleted: true };
-  });
+  const [row] = await db.$queryRaw<
+    Array<{ result: { ok: boolean; code?: string } }>
+  >`
+    SELECT public.delete_request_draft(${identity.organizationId}::uuid,${identity.memberId}::uuid,${id}::uuid,${version}::int,${correlationId}) AS result`;
+  if (row.result.ok) return { deleted: true };
+  if (row.result.code === "FORBIDDEN") denied();
+  if (row.result.code === "NOT_FOUND") missing();
+  if (row.result.code === "VERSION_CONFLICT") conflict();
+  throw Error("Database rejected draft deletion");
 }
