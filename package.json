@@ -27,6 +27,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:bootstrap": "tsx scripts/bootstrap.ts",
+    "db:verify-access": "tsx scripts/verify-database-access.ts",
     "db:seed": "tsx scripts/seed.ts",
     "db:local": "tsx scripts/local-postgres.ts",
     "api": "tsx apps/api/main.ts",

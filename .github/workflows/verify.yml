@@ -40,6 +40,7 @@ jobs:
       - run: npm ci
       - run: npm run db:generate
       - run: npm run db:bootstrap
+      - run: npm run db:verify-access
       - run: npx playwright install --with-deps chromium
       - run: npm run cf:types
       - run: npm run verify
@@ -77,3 +78,29 @@ jobs:
             test-results/
       - run: docker compose down --volumes
         if: always()
+  release-evidence:
+    needs: [integration, containers]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: verification-evidence
+          path: .local/ci/integration
+      - uses: actions/download-artifact@v4
+        with:
+          name: container-evidence
+          path: .local/ci/containers
+      - run: node --import tsx scripts/merge-ci-evidence.ts
+        env:
+          INTEGRATION_JOB_RESULT: ${{ needs.integration.result }}
+          CONTAINER_JOB_RESULT: ${{ needs.containers.result }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-proof
+          path: evidence/manifest.json
+          retention-days: 90

@@ -4,6 +4,7 @@ export default defineConfig({
   timeout: 45000,
   fullyParallel: false,
   workers: 1,
+  metadata: { expectsWorkerReport: process.env.EXPECT_REPORT === "1" },
   reporter: [["list"], ["json", { outputFile: "evidence/playwright.json" }]],
   use: {
     baseURL: process.env.E2E_BASE_URL ?? "http://localhost:3100",

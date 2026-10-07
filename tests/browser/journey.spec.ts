@@ -35,7 +35,10 @@ test("employee → manager → observer: persisted approval, audit and tenant sw
   ).toBeVisible();
   if (process.env.EXPECT_REPORT === "1") {
     await expect(async () => {
-      await page.getByRole("button", { name: "Refresh", exact: false }).click();
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Refresh", exact: false })
+        .click();
       await expect(
         page.getByText("Report ready. One persisted result."),
       ).toBeVisible();
