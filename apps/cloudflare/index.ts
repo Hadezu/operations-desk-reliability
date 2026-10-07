@@ -1,6 +1,30 @@
 import { connectEdgeDatabase as connectDatabase } from "../../packages/core/edge-db.js";
 import { handleApi } from "../../packages/core/http.js";
 
+import {
+  CreateRequest,
+  EditRequest,
+  Decision,
+  SubmitRequest,
+  SwitchIdentity,
+  ListQuery,
+  RequestRecord,
+  Replay,
+} from "../../packages/contracts/index.js";
+// Zod compiles object validators lazily. Compile them during isolate startup,
+// outside the first visitor's CPU budget; no request state or I/O is retained.
+for (const schema of [
+  CreateRequest,
+  EditRequest,
+  Decision,
+  SubmitRequest,
+  SwitchIdentity,
+  ListQuery,
+  RequestRecord,
+  Replay,
+])
+  schema.safeParse({});
+
 function unavailable(status: number, code: string, message: string) {
   return Response.json(
     { error: { code, message, requestId: crypto.randomUUID() } },

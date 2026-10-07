@@ -130,7 +130,32 @@ export async function startDemo(db: Database, dailyLimit?: number) {
       "DEMO_CAPACITY",
       "Today’s demo capacity is full. Please try tomorrow; the proof page remains available.",
     );
-  return { sessionToken, csrfToken };
+  // These identities were committed by the single provisioning statement.
+  // Return the committed fixture view without immediately re-reading it twice.
+  const identity: Identity = {
+    workspaceId,
+    organizationId: organizations[0].id,
+    memberId: members[0].id,
+    name: members[0].name,
+    role: "EMPLOYEE",
+    tokenHash,
+    csrfToken,
+  };
+  return {
+    sessionToken,
+    csrfToken,
+    identity,
+    organizations: organizations.map((org) => ({
+      ...org,
+      workspaceId,
+      members: members
+        .filter((m) => m.organization_id === org.id)
+        .map(({ organization_id, ...m }) => ({
+          ...m,
+          organizationId: organization_id,
+        })),
+    })),
+  };
 }
 
 export async function sessionView(
@@ -156,6 +181,24 @@ export async function sessionView(
     FROM organizations o JOIN members m ON m.organization_id=o.id
     WHERE o.workspace_id=${identity.workspaceId}::uuid GROUP BY o.id ORDER BY o.name DESC`;
 
+  return sessionDto(identity, organizations, backgroundMode);
+}
+
+export function sessionDto(
+  identity: Identity,
+  organizations: Array<{
+    id: string;
+    workspaceId: string;
+    name: string;
+    members: Array<{
+      id: string;
+      organizationId: string;
+      name: string;
+      role: string;
+    }>;
+  }>,
+  backgroundMode: string,
+) {
   return {
     identity: {
       organizationId: identity.organizationId,

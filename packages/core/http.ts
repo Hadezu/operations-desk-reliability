@@ -9,6 +9,7 @@ import {
 import {
   authenticate,
   sessionView,
+  sessionDto,
   startDemo,
   switchIdentity,
   type Identity,
@@ -139,10 +140,10 @@ export async function handleApi(
         result = response(await sessionView(db, actor, options.backgroundMode));
       else {
         const session = await startDemo(db, options.demoDailyLimit);
-        actor = await authenticate(db, session.sessionToken);
+        actor = session.identity;
         const secure = options.origin.startsWith("https:") ? "; Secure" : "";
         result = response(
-          await sessionView(db, actor, options.backgroundMode),
+          sessionDto(actor, session.organizations, options.backgroundMode),
           200,
           {
             "set-cookie": `desk_session=${session.sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${secure}`,

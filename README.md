@@ -14,6 +14,8 @@ The interesting part is what happens when two decisions collide, a command is re
 
 The verification workflow runs 38 API/database assertions across the Prisma and edge SQL adapters, five worker-recovery scenarios, desktop/mobile browser journeys, a Cloudflare runtime check and a separate Docker Compose job. See the exact tested revision and observed results in the evidence artifact; the badge shows the latest workflow status.
 
+![Published approval register with three roles and a persisted decision](docs/images/desktop.png)
+
 ## What can be checked
 
 | Claim | Executable proof | Expected observation |
