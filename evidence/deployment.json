@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-10-07T19:40:27.054Z",
+  "sourceHash": "d7699beb8b0ab81c7db55c1de9227cf38a31835b86ad37f33e32117060d18b13",
+  "origin": "https://operations-desk-reliability.vanya-matyushkin.workers.dev",
+  "testedVersion": "3df56b0f-9e23-4fc1-b033-62986e9c1392",
+  "status": "passed",
+  "smoke": {
+    "generatedAt": "2026-10-07T19:40:05.758Z",
+    "origin": "https://operations-desk-reliability.vanya-matyushkin.workers.dev",
+    "deploymentVersion": "3df56b0f-9e23-4fc1-b033-62986e9c1392",
+    "status": "passed",
+    "sourceHash": "d7699beb8b0ab81c7db55c1de9227cf38a31835b86ad37f33e32117060d18b13",
+    "durationMs": 4416,
+    "checks": [
+      "HTTPS API and secure opaque session",
+      "Idempotent replay, conflicting payload rejection, CSRF and employee authorization",
+      "Persisted manager approval, one creation audit and no absent-worker jobs",
+      "Observer write denial, cross-tenant denial and session revocation",
+      "Static evidence page available independently of the API"
+    ]
+  },
+  "browser": {
+    "passed": 2,
+    "durationMs": 19999.205,
+    "origin": "https://operations-desk-reliability.vanya-matyushkin.workers.dev"
+  },
+  "database": {
+    "checkedAt": "2026-10-07T19:38:18.356Z",
+    "status": "passed",
+    "host": "ep-proud-hill-b2erfsp9.c-6.eu-central-1.aws.neon.tech",
+    "runtimeRole": "desk_app",
+    "migrationRole": "desk_owner",
+    "checked": [
+      "Runtime authenticates as a distinct restricted desk_app role",
+      "Runtime has no inherited roles or owned application tables",
+      "Application CRUD and bounded cleanup available; schema creation denied",
+      "Atomic command function runs with caller privileges, without owner elevation",
+      "Audit mutation, workspace expiry manipulation and migration metadata access denied by PostgreSQL"
+    ]
+  },
+  "cpu": {
+    "samples": 40,
+    "p50Ms": 6,
+    "p95Ms": 10,
+    "maxMs": 24,
+    "outcomes": "all ok",
+    "valuesMs": [
+      1,
+      3,
+      3,
+      3,
+      3,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      7,
+      7,
+      7,
+      8,
+      9,
+      9,
+      10,
+      10,
+      13,
+      24
+    ]
+  },
+  "limitation": "Small synthetic sample, not a load test or uptime guarantee. Free service quotas still apply. Evidence-only asset rebuilds may have a different version with the same source hash."
+}
