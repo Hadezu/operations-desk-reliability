@@ -1,6 +1,6 @@
 # Operations Desk
 
-[Live demo](https://operations-desk-reliability.vanya-matyushkin.workers.dev) · [Engineering evidence](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) · [GitHub Actions](https://github.com/Hadezu/operations-desk-reliability/actions)
+[Live demo](https://operations-desk-reliability.vanya-matyushkin.workers.dev) · [Engineering evidence](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) · [GitHub Actions](https://github.com/Hadezu/operations-desk-reliability/actions) · [Portfolio project page](https://work.matiushkin.com/en/services/internal-applications#operations-desk)
 
 [![Verification](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml/badge.svg)](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml)
 
