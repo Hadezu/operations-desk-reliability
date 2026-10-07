@@ -1,6 +1,10 @@
 name: Operations Desk verification
 on:
   push:
+    paths-ignore:
+      - "README.md"
+      - "docs/**"
+      - "evidence/**"
   pull_request:
   workflow_dispatch:
 permissions:

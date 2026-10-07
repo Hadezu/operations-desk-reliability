@@ -31,8 +31,9 @@ try {
           Object.assign(check, {
             status: "passed",
             observed: `HTTPS API and desktop/mobile journeys passed at ${deployment.generatedAt}; restricted Neon role verified. Cloudflare CPU p95 ${deployment.cpu.p95Ms} ms, max ${deployment.cpu.maxMs} ms over ${deployment.cpu.samples} sampled invocations, all successful. Tested version ${deployment.testedVersion}.`,
-            source: "evidence/deployment.json",
-          });
+          source: "scripts/record-deployment.ts",
+        });
+        saved.deployment = deployment;
       }
     } catch {
       /* Public deployment evidence is optional for local/CI builds. */
