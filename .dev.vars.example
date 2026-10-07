@@ -1,0 +1,3 @@
+# Local Cloudflare origin only. Database connection is supplied through
+# CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE in the shell.
+APP_ORIGIN=http://localhost:8787

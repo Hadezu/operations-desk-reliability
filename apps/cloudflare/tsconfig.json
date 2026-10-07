@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "lib": ["ES2022"],
+    "customConditions": ["workerd"]
+  },
+  "include": ["index.ts", "../../worker-configuration.d.ts"],
+  "exclude": []
+}

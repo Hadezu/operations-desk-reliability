@@ -1,0 +1,12 @@
+node_modules
+.generated
+.local
+apps/web/.next
+apps/web/out
+apps/web/public/proof.json
+worker-configuration.d.ts
+apps/web/next-env.d.ts
+package-lock.json
+prisma/migrations
+evidence
+docs/openapi.json

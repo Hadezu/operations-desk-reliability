@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "operations-desk",
+  "main": "apps/cloudflare/index.ts",
+  "compatibility_date": "2026-10-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "minify": true,
+  "alias": { "#prisma-client": "./.generated/prisma-edge/client.ts" },
+  "assets": {
+    "directory": "apps/web/out",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
+  },
+  "observability": { "enabled": true, "head_sampling_rate": 0.1 },
+  "vars": { "APP_ORIGIN": "http://localhost:8787", "DEMO_DAILY_LIMIT": "40" },
+  "hyperdrive": [
+    { "binding": "HYPERDRIVE", "id": "00000000000000000000000000000000" },
+  ],
+  "ratelimits": [
+    {
+      "name": "API_LIMIT",
+      "namespace_id": "26100701",
+      "simple": { "limit": 90, "period": 60 },
+    },
+    {
+      "name": "DEMO_LIMIT",
+      "namespace_id": "26100702",
+      "simple": { "limit": 4, "period": 60 },
+    },
+  ],
+  "triggers": { "crons": ["17 * * * *"] },
+}

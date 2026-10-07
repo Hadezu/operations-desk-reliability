@@ -1,0 +1,96 @@
+name: operations-desk
+x-app: &app
+  build: .
+  image: operations-desk:local
+  restart: unless-stopped
+x-runtime-env: &runtime-env
+  DATABASE_URL: postgresql://desk_app:local-app-password@postgres:5432/desk
+  REDIS_URL: redis://redis:6379
+  APP_ORIGIN: http://localhost:3100
+  BACKGROUND_MODE: bullmq
+services:
+  postgres:
+    image: postgres:18-bookworm
+    environment:
+      POSTGRES_DB: desk
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: local-owner-password
+    ports: ["127.0.0.1:15432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d desk"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: redis:8-alpine
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory-policy",
+        "noeviction",
+      ]
+    ports: ["127.0.0.1:16379:6379"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  migrate:
+    <<: *app
+    restart: "no"
+    command: ["node", "--import", "tsx", "scripts/bootstrap.ts"]
+    environment:
+      <<: *runtime-env
+      MIGRATION_DATABASE_URL: postgresql://postgres:local-owner-password@postgres:5432/desk
+    depends_on:
+      postgres: { condition: service_healthy }
+  api:
+    <<: *app
+    environment: *runtime-env
+    ports: ["127.0.0.1:3101:3101"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3101/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  worker:
+    <<: *app
+    command: ["node", "--import", "tsx", "apps/worker/main.ts"]
+    environment: *runtime-env
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+  web:
+    <<: *app
+    command: ["node", "--import", "tsx", "scripts/serve-web.ts"]
+    environment:
+      API_INTERNAL_URL: http://api:3101
+    ports: ["127.0.0.1:3100:3100"]
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3100/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  postgres-data:
+  redis-data:

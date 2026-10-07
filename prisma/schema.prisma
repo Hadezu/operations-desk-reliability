@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../.generated/prisma"
+}
+
+generator clientEdge {
+  provider = "prisma-client"
+  output   = "../.generated/prisma-edge"
+  runtime  = "workerd"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Workspace {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  expiresAt DateTime @map("expires_at") @db.Timestamptz()
+  organizations Organization[]
+  sessions Session[]
+  @@map("workspaces")
+}
+
+model Organization {
+  id String @id @default(uuid()) @db.Uuid
+  workspaceId String @map("workspace_id") @db.Uuid
+  name String
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  members Member[]
+  requests Request[]
+  @@unique([workspaceId, id])
+  @@map("organizations")
+}
+
+model Member {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  name String
+  role String
+  organization Organization @relation(fields: [organizationId], references: [id])
+  @@unique([organizationId, id])
+  @@map("members")
+}
+
+model Session {
+  tokenHash String @id @map("token_hash")
+  workspaceId String @map("workspace_id") @db.Uuid
+  memberId String @map("member_id") @db.Uuid
+  csrfToken String @map("csrf_token")
+  expiresAt DateTime @map("expires_at") @db.Timestamptz()
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  @@map("sessions")
+}
+
+model Request {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  ownerId String @map("owner_id") @db.Uuid
+  title String
+  description String
+  category String
+  amountCents Int @map("amount_cents")
+  status String @default("DRAFT")
+  version Int @default(1)
+  decisionComment String? @map("decision_comment")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz()
+  organization Organization @relation(fields: [organizationId], references: [id])
+  @@unique([organizationId, id])
+  @@index([organizationId, status, createdAt, id])
+  @@map("requests")
+}
+
+model AuditEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  actorId String? @map("actor_id") @db.Uuid
+  entityId String @map("entity_id") @db.Uuid
+  action String
+  correlationId String @map("correlation_id")
+  metadata Json @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  @@index([organizationId, entityId, createdAt])
+  @@map("audit_events")
+}
+
+model Command {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  actorId String @map("actor_id") @db.Uuid
+  operation String
+  key String
+  fingerprint String
+  result Json?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  @@unique([organizationId, actorId, operation, key])
+  @@map("commands")
+}
+
+model OutboxEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  correlationId String @map("correlation_id")
+  status String @default("PENDING")
+  leaseUntil DateTime? @map("lease_until") @db.Timestamptz()
+  leaseToken String? @map("lease_token") @db.Uuid
+  publishedAt DateTime? @map("published_at") @db.Timestamptz()
+  replayGeneration Int @default(0) @map("replay_generation")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  @@unique([organizationId, requestId])
+  @@index([status, leaseUntil])
+  @@map("outbox_events")
+}
+
+model Report {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  requestId String @map("request_id") @db.Uuid
+  outboxId String @unique @map("outbox_id") @db.Uuid
+  content Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  @@unique([organizationId, requestId])
+  @@map("reports")
+}
+
+model JobAttempt {
+  id String @id @default(uuid()) @db.Uuid
+  outboxId String @map("outbox_id") @db.Uuid
+  jobId String @map("job_id")
+  status String
+  errorCode String? @map("error_code")
+  startedAt DateTime @default(now()) @map("started_at") @db.Timestamptz()
+  finishedAt DateTime? @map("finished_at") @db.Timestamptz()
+  @@index([outboxId, startedAt])
+  @@map("job_attempts")
+}

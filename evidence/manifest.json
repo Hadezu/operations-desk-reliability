@@ -1,0 +1,258 @@
+{
+  "generatedAt": "2026-10-07T18:22:18.667Z",
+  "startedAt": "2026-10-07T18:21:23.096Z",
+  "environment": "win32/x64; Node v24.15.0; PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35226, 64-bit",
+  "commit": "f58d2f3c735ef6a07f924c8ec7a9a91736b011d1",
+  "dirty": true,
+  "sourceHash": "e28d3b93aa24b71acc5c1e4b7bfdbb6979819abce16032fc4739fc3208cb2054",
+  "ciUrl": null,
+  "sourceUrl": null,
+  "checks": [
+    {
+      "name": "TypeScript",
+      "expected": "Node and web strict type checks pass",
+      "source": "tsconfig.json",
+      "status": "passed",
+      "observed": "Process exit 0; completed successfully.",
+      "durationMs": 750
+    },
+    {
+      "name": "Cloudflare types",
+      "expected": "Edge client and generated bindings type check",
+      "source": "apps/cloudflare/tsconfig.json",
+      "status": "passed",
+      "observed": "Process exit 0; completed successfully.",
+      "durationMs": 236
+    },
+    {
+      "name": "TENANT: blocks foreign read, edit, delete and audit",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 68.18209999999999
+    },
+    {
+      "name": "TENANT: ignores no client tenant override; rejects unknown properties",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 4.643100000000004
+    },
+    {
+      "name": "SESSION: cannot switch to another visitor identity",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 5.228900000000067
+    },
+    {
+      "name": "CSRF: rejects absent token and foreign origin",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 4.3571000000000595
+    },
+    {
+      "name": "SESSION: stores a hash, expires and revokes sessions",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 115.12520000000006
+    },
+    {
+      "name": "RBAC: employee cannot approve; observer cannot create or submit",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 33.681499999999915
+    },
+    {
+      "name": "IDEMPOTENCY: concurrent identical commands persist one entity and replay result",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 72.83429999999998
+    },
+    {
+      "name": "IDEMPOTENCY: same key is isolated between tenants",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 10.067399999999907
+    },
+    {
+      "name": "CONCURRENCY: one decision wins; the loser receives 409",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 53.231799999999794
+    },
+    {
+      "name": "RBAC: managers cannot approve their own requests",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 28.972300000000132
+    },
+    {
+      "name": "VALIDATION: rejects invalid amounts, stale draft updates and invalid transitions",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 30.238599999999906
+    },
+    {
+      "name": "OUTBOX: database failure rolls back decision, audit and intent",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 45.69950000000017
+    },
+    {
+      "name": "DATABASE: composite FK rejects an owner from a different tenant",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 5.814300000000003
+    },
+    {
+      "name": "DATABASE: approved records require a non-null decision comment",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 3.3297000000000025
+    },
+    {
+      "name": "RETENTION: runtime cannot forge expiry; purge only removes expired workspaces",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 133.82259999999997
+    },
+    {
+      "name": "AUDIT: runtime role cannot update, delete or truncate audit events",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 141.00890000000004
+    },
+    {
+      "name": "CONTRACT: implementation responses match the published schemas",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 31.678900000000112
+    },
+    {
+      "name": "PAGINATION: deterministic cursor pages do not repeat records",
+      "expected": "Assertion set passes against real PostgreSQL with the restricted application role.",
+      "observed": "All assertions passed.",
+      "status": "passed",
+      "source": "tests/api.test.ts",
+      "durationMs": 11.782100000000128
+    },
+    {
+      "name": "Outbox publication recovery",
+      "status": "passed",
+      "durationMs": 1081,
+      "observed": "Durable intent recovered; duplicate enqueue kept one job and one report.",
+      "expected": "Failure injection recovers without duplicate persisted results.",
+      "source": "tests/worker-recovery.ts"
+    },
+    {
+      "name": "Worker termination and restart",
+      "status": "passed",
+      "durationMs": 3567,
+      "observed": "OS-killed a RUNNING worker; restart recovered the stalled job, one result, INTERRUPTED attempt retained.",
+      "expected": "Failure injection recovers without duplicate persisted results.",
+      "source": "tests/worker-recovery.ts"
+    },
+    {
+      "name": "Crash after result commit",
+      "status": "passed",
+      "durationMs": 3695,
+      "observed": "Process exited after PostgreSQL commit, before queue acknowledgement; restart retained one report and one completion audit.",
+      "expected": "Failure injection recovers without duplicate persisted results.",
+      "source": "tests/worker-recovery.ts"
+    },
+    {
+      "name": "Bounded failure and controlled replay",
+      "status": "passed",
+      "durationMs": 4931,
+      "observed": "Three failed attempts with backoff; observer denied; manager replay audited once; generation 1 produced one report.",
+      "expected": "Failure injection recovers without duplicate persisted results.",
+      "source": "tests/worker-recovery.ts"
+    },
+    {
+      "name": "Missing queue record reconciliation",
+      "status": "passed",
+      "durationMs": 866,
+      "observed": "Removed a published queue record; reconciliation republished durable intent and produced one report.",
+      "expected": "Failure injection recovers without duplicate persisted results.",
+      "source": "tests/worker-recovery.ts"
+    },
+    {
+      "name": "Next.js production build",
+      "expected": "Static export compiles and type checks",
+      "source": "apps/web/next.config.mjs",
+      "status": "passed",
+      "observed": "Process exit 0; completed successfully.",
+      "durationMs": 15969
+    },
+    {
+      "name": "Browser workflow",
+      "expected": "Employee → manager → observer journey passes on desktop and mobile",
+      "source": "tests/browser/journey.spec.ts",
+      "status": "passed",
+      "observed": "2 passed; 0 failed; desktop and mobile Chromium.",
+      "durationMs": 10167
+    },
+    {
+      "name": "Cloudflare bundle",
+      "expected": "Worker and static assets produce a deployment bundle without publishing",
+      "source": "wrangler.jsonc",
+      "status": "passed",
+      "observed": "Process exit 0; completed successfully.",
+      "durationMs": 3511
+    },
+    {
+      "name": "Cloudflare local runtime",
+      "expected": "Approval flow runs in workerd against real PostgreSQL, with no absent-worker jobs",
+      "source": "tests/cloudflare-smoke.ts",
+      "status": "passed",
+      "observed": "Process exit 0; completed successfully.",
+      "durationMs": 5517
+    },
+    {
+      "name": "Docker Compose execution",
+      "status": "unverified",
+      "expected": "Build images, bootstrap a clean database and complete the browser workflow with a running report worker.",
+      "observed": "Separate container job and its artifacts must be inspected; this local/integration runner does not attest Docker execution.",
+      "source": "compose.yaml"
+    },
+    {
+      "name": "Public Cloudflare deployment",
+      "status": "unverified",
+      "expected": "Free managed database, restricted role, deployed URL, runtime CPU and browser smoke checks.",
+      "observed": "Deployment has not been verified. A dry-run build is not a public deployment.",
+      "source": "docs/DEPLOYMENT.md"
+    }
+  ]
+}

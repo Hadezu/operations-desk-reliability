@@ -1,0 +1,16 @@
+node_modules
+.git
+.env*
+.dev.vars*
+.local
+.generated
+.wrangler
+.cloudflare-build
+apps/web/.next
+apps/web/out
+apps/web/public/proof.json
+evidence/*.json
+evidence/*.png
+test-results
+playwright-report
+*.tsbuildinfo
