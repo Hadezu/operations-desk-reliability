@@ -1,6 +1,6 @@
 import "dotenv/config";
 import assert from "node:assert/strict";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { unstable_dev, experimental_readRawConfig } from "wrangler";
 if (!process.env.DATABASE_URL) throw Error("Real PostgreSQL required.");
@@ -17,6 +17,10 @@ config.vars = { APP_ORIGIN: origin, DEMO_DAILY_LIMIT: "10000" };
 config.hyperdrive![0].localConnectionString = process.env.DATABASE_URL;
 delete config.$schema;
 await mkdir(".local/cloudflare-smoke", { recursive: true });
+// An explicit dev-vars file also blocks Wrangler's process.env fallback when
+// required secrets are declared. CI's Fastify APP_ORIGIN must not override this
+// isolated workerd origin; this test always uses the local PostgreSQL binding.
+await writeFile(".local/cloudflare-smoke/.dev.vars", 'NEON_DATABASE_URL=""\n');
 await writeFile(
   ".local/cloudflare-smoke/wrangler.json",
   JSON.stringify(config),
@@ -41,7 +45,7 @@ try {
     method: "POST",
     headers: { origin },
   });
-  assert.equal(demo.status, 200);
+  assert.equal(demo.status, 200, await demo.clone().text());
   const session = await demo.json();
   const cookie = demo.headers.get("set-cookie")!.split(";")[0];
   let csrf: string = session.csrfToken;
