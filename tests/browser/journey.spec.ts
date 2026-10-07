@@ -5,6 +5,15 @@ test("employee → manager → observer: persisted approval, audit and tenant sw
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
+  await expect(
+    page.getByRole("link", { name: "Explore the code" }),
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/Hadezu/operations-desk-reliability",
+  );
+  await expect(
+    page.getByRole("list", { name: "Project technologies" }),
+  ).toContainText("PostgreSQL / Prisma");
   await page.getByRole("button", { name: "Try the demo" }).click();
   await expect(
     page.getByRole("heading", { name: "Requests", exact: true }),
@@ -43,6 +52,13 @@ test("employee → manager → observer: persisted approval, audit and tenant sw
         page.getByText("Report ready. One persisted result."),
       ).toBeVisible();
     }).toPass({ timeout: 20000 });
+  } else {
+    await expect(
+      page.getByRole("heading", { name: "Approval recorded", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Inspect worker recovery evidence" }),
+    ).toHaveAttribute("href", "/proof/#worker-recovery");
   }
   await page.getByRole("button", { name: "Close details" }).click();
   await page
@@ -61,6 +77,20 @@ test("employee → manager → observer: persisted approval, audit and tenant sw
   await expect(
     page.getByText("request created", { exact: true }),
   ).toBeVisible();
+  const activity = page.getByRole("dialog").getByRole("listitem");
+  await expect(activity.filter({ hasText: "request created" })).toContainText(
+    "Alex Morgan · employee",
+  );
+  await expect(activity.filter({ hasText: "request submitted" })).toContainText(
+    "Alex Morgan · employee",
+  );
+  await expect(activity.filter({ hasText: "request approved" })).toContainText(
+    "Sam Taylor · manager",
+  );
+  if (process.env.EXPECT_REPORT === "1")
+    await expect(
+      activity.filter({ hasText: "report completed" }),
+    ).toContainText("System · automated action");
   await page.screenshot({
     path: `evidence/${info.project.name}-audit.png`,
     fullPage: true,
@@ -85,5 +115,33 @@ test("employee → manager → observer: persisted approval, audit and tenant sw
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  expect(errors).toEqual([]);
+  await page.goto("/proof/");
+  await expect(
+    page.getByRole("heading", { name: "Six guarantees. Open to inspection." }),
+  ).toBeVisible();
+  await expect(page.getByRole("article")).toHaveCount(6);
+  await expect(
+    page.getByRole("link", { name: "GitHub repository" }),
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/Hadezu/operations-desk-reliability",
+  );
+  const recovery = page.getByRole("article", {
+    name: "Worker recovery",
+    exact: true,
+  });
+  await recovery.locator("summary").click();
+  await expect(recovery.locator("details")).toHaveAttribute("open", "");
+  // The detailed evidence must remain readable at the mobile viewport, too.
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: `evidence/${info.project.name}-proof.png`,
+    fullPage: true,
+  });
   expect(errors).toEqual([]);
 });

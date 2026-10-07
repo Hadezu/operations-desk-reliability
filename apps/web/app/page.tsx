@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { repositoryUrl } from "./project";
 import type { z } from "zod";
 import {
   RequestRecord,
@@ -21,6 +22,7 @@ type Session = {
 };
 type Audit = {
   id: string;
+  actorId: string | null;
   action: string;
   correlationId: string;
   createdAt: string;
@@ -194,6 +196,16 @@ export default function Desk() {
   const org = session?.organizations.find(
     (item) => item.id === session.identity.organizationId,
   );
+  function actorLabel(actorId: string | null) {
+    if (actorId === null) return "System · automated action";
+    const member = org?.members.find((item) => item.id === actorId);
+    return member
+      ? `${member.name} · ${words(member.role)}`
+      : "Member unavailable";
+  }
+  const decisionEvent = events.find((item) =>
+    ["REQUEST_APPROVED", "REQUEST_REJECTED"].includes(item.action),
+  );
   const ownsDraft =
     selected?.status === "DRAFT" &&
     selected.ownerId === session?.identity.memberId;
@@ -268,39 +280,62 @@ export default function Desk() {
           <span>
             Workspace <span className="slash">/</span> Requests
           </span>
-          <a href="/proof/">
-            View the evidence <span>↗</span>
-          </a>
+          <div className="topbar-links">
+            <a href="/proof/">
+              View the evidence <span>↗</span>
+            </a>
+            <a href={repositoryUrl}>
+              GitHub <span>↗</span>
+            </a>
+          </div>
         </header>
         <div className="content">
           {!session ? (
             <section className="welcome">
-              <div className="eyebrow">OPERATIONS, IN ORDER</div>
+              <div className="eyebrow">
+                FULL-STACK PORTFOLIO · IVAN MATIUSHKIN
+              </div>
               <h1>
                 Every request.
                 <br />A clear next step.
               </h1>
               <p>
-                Create a request, review a decision, and follow the record.
-                Explore three roles in your own private demo workspace.
+                An approval workflow with isolated organizations,
+                server-enforced roles and a traceable decision history. Try all
+                three roles in your own private workspace.
               </p>
-              <button
-                className="primary"
-                disabled={busy || starting}
-                onClick={() =>
-                  void run(async () => {
-                    const auth = await api<Session>("/api/demo", "POST", {});
-                    setSession(auth);
-                    await list(auth);
-                  })
-                }
-              >
-                {starting
-                  ? "Checking session…"
-                  : busy
-                    ? "Preparing your workspace…"
-                    : "Try the demo →"}
-              </button>
+              <ul className="stack-tags" aria-label="Project technologies">
+                <li>Next.js + TypeScript</li>
+                <li>Node.js / Fastify</li>
+                <li>PostgreSQL / Prisma</li>
+                <li>Redis / BullMQ</li>
+              </ul>
+              <div className="welcome-actions">
+                <button
+                  className="primary"
+                  disabled={busy || starting}
+                  onClick={() =>
+                    void run(async () => {
+                      const auth = await api<Session>("/api/demo", "POST", {});
+                      setSession(auth);
+                      await list(auth);
+                    })
+                  }
+                >
+                  {starting
+                    ? "Checking session…"
+                    : busy
+                      ? "Preparing your workspace…"
+                      : "Try the demo →"}
+                </button>
+                <a className="secondary" href={repositoryUrl}>
+                  Explore the code ↗
+                </a>
+              </div>
+              <p className="welcome-scope">
+                Live demo: approvals, roles and audit. Docker + CI: the full
+                Node.js backend and background-worker recovery.
+              </p>
               <div className="welcome-steps">
                 <span>
                   <b>01</b> Create & submit
@@ -431,6 +466,13 @@ export default function Desk() {
                   </p>
                 </div>
               </section>
+              {session.backgroundMode !== "bullmq" && (
+                <p className="environment-note">
+                  <b>Live demo</b> · Approvals and audit are saved online.
+                  Background reports are demonstrated separately in{" "}
+                  <a href="/proof/#worker-recovery">Docker + CI ↗</a>.
+                </p>
+              )}
               <section className="request-panel">
                 <div className="panel-toolbar">
                   <h2>
@@ -700,6 +742,12 @@ export default function Desk() {
                 <blockquote>
                   <small>REVIEWER’S DECISION</small>
                   {selected.decisionComment}
+                  {decisionEvent && (
+                    <footer className="decision-author">
+                      {actorLabel(decisionEvent.actorId)} ·{" "}
+                      {date(decisionEvent.createdAt)}
+                    </footer>
+                  )}
                 </blockquote>
               )}
               {ownsDraft && (
@@ -812,6 +860,9 @@ export default function Desk() {
                         <span className="timeline-point" />
                         <div>
                           <b className="capitalize">{words(item.action)}</b>
+                          <span className="audit-actor">
+                            {actorLabel(item.actorId)}
+                          </span>
                           <small>{date(item.createdAt)}</small>
                           <details>
                             <summary>Trace reference</summary>
@@ -825,14 +876,25 @@ export default function Desk() {
               </section>
               {selected.status === "APPROVED" && report && (
                 <section className="report-section">
-                  <h3>Approval report</h3>
                   {report.mode !== "bullmq" ? (
-                    <p className="muted">
-                      Reports run in the full local environment.{" "}
-                      <a href="/proof/">See recovery test evidence ↗</a>
-                    </p>
+                    <div className="approval-complete">
+                      <span className="small-pill">ONLINE DEMO COMPLETE</span>
+                      <h3>Approval recorded</h3>
+                      <p>
+                        Your decision and its audit history are saved. No
+                        further processing is needed for this demo.
+                      </p>
+                      <p className="muted">
+                        Background reports, retries and recovery run in the full
+                        Docker environment and are verified in CI.
+                      </p>
+                      <a href="/proof/#worker-recovery">
+                        Inspect worker recovery evidence ↗
+                      </a>
+                    </div>
                   ) : (
                     <>
+                      <h3>Approval report</h3>
                       <p>
                         {report.report
                           ? "Report ready. One persisted result."
