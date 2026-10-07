@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-07T20:18:07.652Z",
-  "startedAt": "2026-10-07T20:17:27.953Z",
+  "generatedAt": "2026-10-07T20:42:27.108Z",
+  "startedAt": "2026-10-07T20:41:36.244Z",
   "environment": "linux/x64; Node v24.21.0; PostgreSQL 18.6 (Debian 18.6-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
-  "commit": "da9530acd18a2eeb2cdca7ae4a9aec255a6f0ef4",
+  "commit": "3bc346229ec8aed3084835875cb537e60939d188",
   "dirty": false,
-  "sourceHash": "8a9042974fb361798fc2d2121da17a1e79b5ad5f744fc6b780353d150913d6c6",
-  "ciUrl": "https://github.com/Hadezu/operations-desk-reliability/actions/runs/37680782120",
-  "sourceUrl": "https://github.com/Hadezu/operations-desk-reliability/blob/da9530acd18a2eeb2cdca7ae4a9aec255a6f0ef4",
+  "sourceHash": "510a939469af03e46e721bac77a09da98e13e292901f47d2c396519edb02cf4b",
+  "ciUrl": "https://github.com/Hadezu/operations-desk-reliability/actions/runs/37683837483",
+  "sourceUrl": "https://github.com/Hadezu/operations-desk-reliability/blob/3bc346229ec8aed3084835875cb537e60939d188",
   "checks": [
     {
       "name": "TypeScript",
@@ -14,7 +14,7 @@
       "source": "tsconfig.json",
       "status": "passed",
       "observed": "Process exit 0; completed successfully.",
-      "durationMs": 519
+      "durationMs": 881
     },
     {
       "name": "Cloudflare types",
@@ -22,7 +22,7 @@
       "source": "apps/cloudflare/tsconfig.json",
       "status": "passed",
       "observed": "Process exit 0; completed successfully.",
-      "durationMs": 138
+      "durationMs": 282
     },
     {
       "name": "Prisma adapter tenant and session boundaries ADMISSION: concurrent visitors cannot exceed the daily workspace quota",
@@ -30,7 +30,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 57.179013
+      "durationMs": 56.230718000000024
     },
     {
       "name": "Prisma adapter tenant and session boundaries TENANT: blocks foreign read, edit, delete and audit",
@@ -38,7 +38,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 33.69502299999999
+      "durationMs": 53.42229099999997
     },
     {
       "name": "Prisma adapter tenant and session boundaries TENANT: ignores no client tenant override; rejects unknown properties",
@@ -46,7 +46,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 2.435222000000067
+      "durationMs": 3.515504999999962
     },
     {
       "name": "Prisma adapter tenant and session boundaries SESSION: cannot switch to another visitor identity",
@@ -54,7 +54,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 4.236272999999983
+      "durationMs": 5.608393999999976
     },
     {
       "name": "Prisma adapter tenant and session boundaries CSRF: rejects absent token and foreign origin",
@@ -62,7 +62,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 2.6121479999999337
+      "durationMs": 3.5311440000000403
     },
     {
       "name": "Prisma adapter tenant and session boundaries SESSION: stores a hash, expires and revokes sessions",
@@ -70,7 +70,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 24.24463000000003
+      "durationMs": 35.171876999999995
     },
     {
       "name": "Prisma adapter authorization and commands RBAC: employee cannot approve; observer cannot create or submit",
@@ -78,7 +78,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 18.19855300000006
+      "durationMs": 27.568773999999962
     },
     {
       "name": "Prisma adapter authorization and commands IDEMPOTENCY: concurrent identical commands persist one entity and replay result",
@@ -86,7 +86,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 15.054286999999931
+      "durationMs": 14.056181000000038
     },
     {
       "name": "Prisma adapter authorization and commands IDEMPOTENCY: same key is isolated between tenants",
@@ -94,7 +94,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 5.170024000000012
+      "durationMs": 8.178286000000071
     },
     {
       "name": "Prisma adapter authorization and commands CONCURRENCY: one decision wins; the loser receives 409",
@@ -102,7 +102,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 25.113152000000014
+      "durationMs": 40.29860800000006
     },
     {
       "name": "Prisma adapter authorization and commands RBAC: managers cannot approve their own requests",
@@ -110,7 +110,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 16.85307499999999
+      "durationMs": 22.617252000000008
     },
     {
       "name": "Prisma adapter authorization and commands VALIDATION: rejects invalid amounts, stale draft updates and invalid transitions",
@@ -118,7 +118,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 36.481553000000076
+      "durationMs": 24.190303000000085
     },
     {
       "name": "Prisma adapter database guarantees and contracts DELETE: stale deletion conflicts; successful deletion retains one audit entry",
@@ -126,7 +126,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 9.074528999999984
+      "durationMs": 14.491724999999974
     },
     {
       "name": "Prisma adapter database guarantees and contracts OUTBOX: database failure rolls back decision, audit and intent",
@@ -134,7 +134,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 24.43802000000005
+      "durationMs": 42.65507200000002
     },
     {
       "name": "Prisma adapter database guarantees and contracts DATABASE: composite FK rejects an owner from a different tenant",
@@ -142,7 +142,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 6.486126999999897
+      "durationMs": 12.694007000000056
     },
     {
       "name": "Prisma adapter database guarantees and contracts DATABASE: approved records require a non-null decision comment",
@@ -150,7 +150,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 6.904163999999923
+      "durationMs": 11.154066000000057
     },
     {
       "name": "Prisma adapter database guarantees and contracts RETENTION: runtime cannot forge expiry; purge only removes expired workspaces",
@@ -158,7 +158,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 29.07365200000004
+      "durationMs": 44.16148300000009
     },
     {
       "name": "Prisma adapter database guarantees and contracts AUDIT: runtime role cannot update, delete or truncate audit events",
@@ -166,7 +166,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 45.45229600000005
+      "durationMs": 34.772257999999965
     },
     {
       "name": "Prisma adapter database guarantees and contracts CONTRACT: implementation responses match the published schemas",
@@ -174,7 +174,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 17.305694000000017
+      "durationMs": 26.103660999999875
     },
     {
       "name": "Prisma adapter database guarantees and contracts PAGINATION: deterministic cursor pages do not repeat records",
@@ -182,7 +182,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 10.80370199999993
+      "durationMs": 16.13469299999997
     },
     {
       "name": "edge SQL adapter tenant and session boundaries ADMISSION: concurrent visitors cannot exceed the daily workspace quota",
@@ -190,7 +190,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 16.959985999999958
+      "durationMs": 26.229127999999946
     },
     {
       "name": "edge SQL adapter tenant and session boundaries TENANT: blocks foreign read, edit, delete and audit",
@@ -198,7 +198,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 14.425333000000023
+      "durationMs": 27.04539900000009
     },
     {
       "name": "edge SQL adapter tenant and session boundaries TENANT: ignores no client tenant override; rejects unknown properties",
@@ -206,7 +206,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 1.3446360000000368
+      "durationMs": 2.138885000000073
     },
     {
       "name": "edge SQL adapter tenant and session boundaries SESSION: cannot switch to another visitor identity",
@@ -214,7 +214,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 2.4036650000000463
+      "durationMs": 3.737437
     },
     {
       "name": "edge SQL adapter tenant and session boundaries CSRF: rejects absent token and foreign origin",
@@ -222,7 +222,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 1.4889830000000757
+      "durationMs": 2.130818999999974
     },
     {
       "name": "edge SQL adapter tenant and session boundaries SESSION: stores a hash, expires and revokes sessions",
@@ -230,7 +230,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 18.420545999999945
+      "durationMs": 23.309923000000026
     },
     {
       "name": "edge SQL adapter authorization and commands RBAC: employee cannot approve; observer cannot create or submit",
@@ -238,7 +238,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 11.030281999999943
+      "durationMs": 15.63406800000007
     },
     {
       "name": "edge SQL adapter authorization and commands IDEMPOTENCY: concurrent identical commands persist one entity and replay result",
@@ -246,7 +246,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 6.072336999999948
+      "durationMs": 9.267125000000078
     },
     {
       "name": "edge SQL adapter authorization and commands IDEMPOTENCY: same key is isolated between tenants",
@@ -254,7 +254,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 2.8304849999999533
+      "durationMs": 4.58718900000008
     },
     {
       "name": "edge SQL adapter authorization and commands CONCURRENCY: one decision wins; the loser receives 409",
@@ -262,7 +262,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 13.937272000000007
+      "durationMs": 20.641172000000097
     },
     {
       "name": "edge SQL adapter authorization and commands RBAC: managers cannot approve their own requests",
@@ -270,7 +270,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 9.61710299999993
+      "durationMs": 13.197091
     },
     {
       "name": "edge SQL adapter authorization and commands VALIDATION: rejects invalid amounts, stale draft updates and invalid transitions",
@@ -278,7 +278,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 9.887148000000025
+      "durationMs": 13.202375999999958
     },
     {
       "name": "edge SQL adapter database guarantees and contracts DELETE: stale deletion conflicts; successful deletion retains one audit entry",
@@ -286,7 +286,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 7.848570999999993
+      "durationMs": 8.722059000000172
     },
     {
       "name": "edge SQL adapter database guarantees and contracts OUTBOX: database failure rolls back decision, audit and intent",
@@ -294,7 +294,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 15.216931000000045
+      "durationMs": 18.062098000000105
     },
     {
       "name": "edge SQL adapter database guarantees and contracts DATABASE: composite FK rejects an owner from a different tenant",
@@ -302,7 +302,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 2.872508000000039
+      "durationMs": 3.7304119999998875
     },
     {
       "name": "edge SQL adapter database guarantees and contracts DATABASE: approved records require a non-null decision comment",
@@ -310,7 +310,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 7.7850349999999935
+      "durationMs": 8.59087999999997
     },
     {
       "name": "edge SQL adapter database guarantees and contracts RETENTION: runtime cannot forge expiry; purge only removes expired workspaces",
@@ -318,7 +318,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 39.505158000000165
+      "durationMs": 39.003911000000016
     },
     {
       "name": "edge SQL adapter database guarantees and contracts AUDIT: runtime role cannot update, delete or truncate audit events",
@@ -326,7 +326,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 25.518641000000116
+      "durationMs": 37.94483800000012
     },
     {
       "name": "edge SQL adapter database guarantees and contracts CONTRACT: implementation responses match the published schemas",
@@ -334,7 +334,7 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 11.672204999999849
+      "durationMs": 15.55039899999997
     },
     {
       "name": "edge SQL adapter database guarantees and contracts PAGINATION: deterministic cursor pages do not repeat records",
@@ -342,12 +342,12 @@
       "observed": "All assertions passed.",
       "status": "passed",
       "source": "tests/api.test.ts",
-      "durationMs": 4.45578300000011
+      "durationMs": 5.751739999999927
     },
     {
       "name": "Outbox publication recovery",
       "status": "passed",
-      "durationMs": 828,
+      "durationMs": 978,
       "observed": "Durable intent recovered; duplicate enqueue kept one job and one report.",
       "expected": "Failure injection recovers without duplicate persisted results.",
       "source": "tests/worker-recovery.ts"
@@ -355,7 +355,7 @@
     {
       "name": "Worker termination and restart",
       "status": "passed",
-      "durationMs": 2969,
+      "durationMs": 3399,
       "observed": "OS-killed a RUNNING worker; restart recovered the stalled job, one result, INTERRUPTED attempt retained.",
       "expected": "Failure injection recovers without duplicate persisted results.",
       "source": "tests/worker-recovery.ts"
@@ -363,7 +363,7 @@
     {
       "name": "Crash after result commit",
       "status": "passed",
-      "durationMs": 3949,
+      "durationMs": 3362,
       "observed": "Process exited after PostgreSQL commit, before queue acknowledgement; restart retained one report and one completion audit.",
       "expected": "Failure injection recovers without duplicate persisted results.",
       "source": "tests/worker-recovery.ts"
@@ -371,7 +371,7 @@
     {
       "name": "Bounded failure and controlled replay",
       "status": "passed",
-      "durationMs": 4203,
+      "durationMs": 4664,
       "observed": "Three failed attempts with backoff; observer denied; manager replay audited once; generation 1 produced one report.",
       "expected": "Failure injection recovers without duplicate persisted results.",
       "source": "tests/worker-recovery.ts"
@@ -379,7 +379,7 @@
     {
       "name": "Missing queue record reconciliation",
       "status": "passed",
-      "durationMs": 478,
+      "durationMs": 789,
       "observed": "Removed a published queue record; reconciliation republished durable intent and produced one report.",
       "expected": "Failure injection recovers without duplicate persisted results.",
       "source": "tests/worker-recovery.ts"
@@ -390,7 +390,7 @@
       "source": "apps/web/next.config.mjs",
       "status": "passed",
       "observed": "Process exit 0; completed successfully.",
-      "durationMs": 11604
+      "durationMs": 17890
     },
     {
       "name": "Browser workflow",
@@ -398,7 +398,7 @@
       "source": "tests/browser/journey.spec.ts",
       "status": "passed",
       "observed": "2 passed; 0 failed; desktop and mobile Chromium.",
-      "durationMs": 7805
+      "durationMs": 10259
     },
     {
       "name": "Cloudflare bundle",
@@ -406,7 +406,7 @@
       "source": "wrangler.jsonc",
       "status": "passed",
       "observed": "Process exit 0; completed successfully.",
-      "durationMs": 849
+      "durationMs": 1257
     },
     {
       "name": "Cloudflare local runtime",
@@ -414,7 +414,7 @@
       "source": "tests/cloudflare-smoke.ts",
       "status": "passed",
       "observed": "Process exit 0; completed successfully.",
-      "durationMs": 2547
+      "durationMs": 2768
     },
     {
       "name": "Docker Compose execution",
@@ -422,7 +422,7 @@
       "expected": "Build images, bootstrap a clean database and complete the browser workflow with a running report worker.",
       "observed": "GitHub containers job built images, bootstrapped a clean PostgreSQL database and passed desktop/mobile approval journeys, including a persisted report from the real BullMQ worker.",
       "source": ".github/workflows/verify.yml",
-      "durationMs": 12323.909
+      "durationMs": 11198.465
     },
     {
       "name": "Public Cloudflare deployment",
@@ -439,5 +439,5 @@
       "source": "scripts/verify-database-access.ts"
     }
   ],
-  "assembledAt": "2026-10-07T20:19:11.786Z"
+  "assembledAt": "2026-10-07T20:43:22.440Z"
 }

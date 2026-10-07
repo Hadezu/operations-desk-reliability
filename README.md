@@ -12,6 +12,8 @@ The interesting part is what happens when two decisions collide, a command is re
 
 **Verified release:** [results and deployment provenance](docs/RELEASE.md), including the successful integration/container CI run and the separate public deployment observations.
 
+The [evidence page](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) presents six expandable guarantees with current CI status, expected/observed results and links to the tested source. Activity names the employee or manager behind each action; automated worker events are labelled separately. The live approval flow clearly completes after saving the decision, while report recovery is demonstrated in Docker/CI.
+
 **Try it in two minutes:** open the live demo and select **Try the demo**. Create and submit a request as Alex, approve it as Sam, then inspect the activity as Jordan. Each visitor receives a separate workspace. No account, installation or personal data is needed. The app runs on Cloudflare Workers Free with Neon Free PostgreSQL; it does not depend on a developer laptop. This is an original synthetic portfolio application, not a customer implementation.
 
 The verification workflow runs 40 API/database assertions across the Prisma and edge SQL adapters, five worker-recovery scenarios, desktop/mobile browser journeys, a Cloudflare runtime check and a separate Docker Compose job. See the exact tested revision and observed results in the evidence artifact; the badge shows the latest workflow status.

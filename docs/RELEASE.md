@@ -1,36 +1,41 @@
 # Verified release — 2026-10-07
 
-[Try Operations Desk](https://operations-desk-reliability.vanya-matyushkin.workers.dev/) · [Inspect the evidence](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) · [Successful CI run](https://github.com/Hadezu/operations-desk-reliability/actions/runs/37680782120)
+[Try Operations Desk](https://operations-desk-reliability.vanya-matyushkin.workers.dev/) · [Inspect the evidence](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) · [Successful CI run](https://github.com/Hadezu/operations-desk-reliability/actions/runs/37683837483)
 
-The application is published on Cloudflare Workers Free with Neon Free PostgreSQL. Local API, frontend, PostgreSQL and Redis processes were stopped before the final HTTPS approval smoke check, which passed. The deployed app has no dependency on the development computer. No paid plan, paid runner or hosted Redis subscription was enabled.
+The four changes requested after a client-style review are published:
 
-## What was executed
+1. The first screen explains the project, names the author and technologies, and links directly to GitHub. It distinguishes the live approval flow from the complete Node/worker environment.
+2. Activity displays the actor's name and role beside each action; the decision also names its reviewer. Automated worker events have a separate system label. These demo members have fixed names and roles; no claim of historical identity snapshots is made.
+3. Six expandable evidence cards replace the wide table. The overview shows CI status, verification date and evidence counts. Expected/observed results, source links, JSON and provenance remain available. Failed or missing evidence cannot render as passed.
+4. A saved approval clearly completes the online demo. Background reports, retries and recovery are identified as the separate Docker/CI demonstration, with a direct link to that evidence.
 
-- 40 API/database tests across the Prisma and edge SQL adapters, using real PostgreSQL and the restricted application role.
-- Five recovery scenarios against real PostgreSQL and Redis: outbox publication, worker termination, crash after commit, bounded retry and controlled replay, and lost queue-record reconciliation.
-- Desktop and mobile browser approval journeys, including the actual BullMQ report in the separate Docker Compose job.
-- Strict TypeScript checks, Next.js build, Cloudflare bundle and local workerd/PostgreSQL approval flow.
-- Hosted database privilege checks and public HTTPS tests for sessions, CSRF, idempotency, draft edit/delete, approval, role and tenant denials, audit and logout.
+## Verification performed
 
-The CI artifact contains 53 passed checks and one public-deployment placeholder. The website merges the separately collected deployment artifact, producing 54 passed evidence entries. These counts are evidence entries, not 54 independent test cases. Both artifacts are checked into `evidence/`; the website includes them only when their source hash matches the build.
+- 40 API/database tests across Prisma and the edge SQL adapter, using real PostgreSQL and the restricted application role.
+- Five recovery scenarios against PostgreSQL and Redis: outbox publication, process termination, crash after commit, bounded retry with controlled replay, and lost queue-record reconciliation.
+- Desktop and mobile browser approval journeys in both CI jobs, including a real BullMQ report in Docker. New assertions verify named employee/manager audit events, automated worker attribution, demo completion, GitHub links and responsive evidence disclosures.
+- Strict TypeScript, Next.js build, Cloudflare bundle and local workerd/PostgreSQL approval checks.
+- Repeated public HTTPS API checks and desktop/mobile browser journeys after publication. Hosted database privilege checks passed. Manual verification covered the new landing screen, create/submit/approve, named audit, observer restrictions, reload persistence, organization switching and expanded evidence at a 390 px viewport. The landing screen and evidence layout were also checked at 320 px in the local build.
+
+The public page contains 54 passed evidence entries. CI supplies 53 and the separately collected public-deployment observation supplies one. These are evidence entries, not 54 independent test cases. The build embeds them only when their source fingerprints match.
 
 ## Provenance
 
 | Item | Value |
 |---|---|
-| Tested source commit | `da9530acd18a2eeb2cdca7ae4a9aec255a6f0ef4` |
-| Source SHA-256 | `8a9042974fb361798fc2d2121da17a1e79b5ad5f744fc6b780353d150913d6c6` |
-| Successful Actions run | `37680782120` |
-| Downloaded release-proof artifact | `11507614820` |
-| CPU-sampled Worker version | `554a14ab-6e7a-4b82-a3f9-e30916723a5e` |
-| Final Worker version after evidence asset publication | `bdec42fc-fb2a-4bb5-84b4-ec6e4a51a513` |
+| Tested source commit | `3bc346229ec8aed3084835875cb537e60939d188` |
+| Source SHA-256 | `510a939469af03e46e721bac77a09da98e13e292901f47d2c396519edb02cf4b` |
+| Successful Actions run | [37683837483](https://github.com/Hadezu/operations-desk-reliability/actions/runs/37683837483) |
+| Downloaded release-proof artifact | `11509549146` |
+| CPU-sampled Worker version | `c6c42127-ffe5-4938-b744-31da1723e0f2` |
+| Final version after evidence asset publication | `1697a7f1-83d0-40ea-8059-7067f9f7b171` |
 
-The final publication added the completed evidence assets without changing application behavior. Its HTTPS smoke check passed after publication. The CPU sample belongs to the explicitly identified earlier runtime version: 81 API invocations, all successful, p50 3 ms, p95 5 ms, maximum 7 ms. It is a small synthetic sample, not a load test or uptime guarantee. Documentation and evidence commits do not change the source fingerprint or rerun the workflow; source changes do.
+The final asset publication added the completed deployment evidence without changing application behavior. Manual approval and persistence checks passed on that final version. The CPU sample explicitly belongs to the earlier version above: 39 API invocations, all successful, p50 3 ms, p95 7 ms, maximum 8 ms. This small synthetic sample does not establish a load capacity or uptime guarantee.
 
-## Scope that a client can verify
+## Hosting and scope
 
-The live site demonstrates the approval workflow, server-side sessions, roles, tenant boundaries, persisted data and audit. Node/Fastify, Prisma, Redis/BullMQ, worker recovery and container delivery are reproducible in Docker and supported by the linked CI artifacts. The public Worker does not run a Redis worker. Next.js uses a static export; SSR, production OIDC and PostgreSQL RLS are not claimed.
+The existing Cloudflare Workers Free and Neon Free resources remain in use. No new resource, paid plan or subscription was added. Local preview servers were stopped before the public checks; the app operates independently of the development computer. Quotas and provider outages still apply.
 
-The provider accounts were confirmed Free at deployment time. Quotas, cold starts and provider outages still apply; this release does not promise uninterrupted availability. See [deployment configuration and limits](DEPLOYMENT.md).
+The live app demonstrates approvals, sessions, roles, tenant boundaries and persisted audit. Node/Fastify, Prisma, Redis/BullMQ and worker recovery are reproducible in Docker and backed by CI. The public Worker does not run a Redis worker. Next.js uses a static export; SSR, production OIDC and PostgreSQL RLS are outside this proof. See [deployment configuration](DEPLOYMENT.md).
 
-This original application is complete for the accepted application scope. The independently scoped contribution to an existing Next.js OSS project remains a separate follow-up and is not claimed as delivered here.
+The independently scoped contribution to an existing Next.js OSS project remains a separate follow-up.
