@@ -75,11 +75,13 @@ try {
     await app.query(`SELECT p.prosecdef,
     has_function_privilege(current_user,p.oid,'EXECUTE') AS executable
     FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
-    WHERE n.nspname='public' AND p.proname='apply_request_command'`)
+    WHERE n.nspname='public' AND p.proname IN ('apply_request_command','provision_demo_workspace')`)
   ).rows;
-  assert.equal(commandRoutine.length, 1);
-  assert.equal(commandRoutine[0].prosecdef, false);
-  assert.equal(commandRoutine[0].executable, true);
+  assert.equal(commandRoutine.length, 2);
+  for (const routine of commandRoutine) {
+    assert.equal(routine.prosecdef, false);
+    assert.equal(routine.executable, true);
+  }
   checked.push(
     "Atomic command function runs with caller privileges, without owner elevation",
   );

@@ -62,92 +62,74 @@ export async function startDemo(db: Database, dailyLimit?: number) {
   const tokenHash = await hash(sessionToken);
   const csrfToken = token();
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  await db.$transaction(async (tx) => {
-    if (dailyLimit !== undefined) {
-      // Serialize quota admission across all Cloudflare locations.
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(26100701)`;
-      const today = new Date();
-      today.setUTCHours(0, 0, 0, 0);
-      if (
-        (await tx.workspace.count({ where: { createdAt: { gte: today } } })) >=
-        dailyLimit
-      )
-        throw new AppError(
-          429,
-          "DEMO_CAPACITY",
-          "Today’s demo capacity is full. Please try tomorrow; the proof page remains available.",
-        );
-    }
-    const workspaceId = crypto.randomUUID();
-    const workspaceExpiry = new Date(Date.now() + 7 * 86400000);
-    const organizations = ["Northwind Studio", "Contoso Labs"].map((name) => ({
+  const workspaceId = crypto.randomUUID();
+  const workspaceExpiry = new Date(Date.now() + 7 * 86400000);
+  const organizations = ["Northwind Studio", "Contoso Labs"].map((name) => ({
+    id: crypto.randomUUID(),
+    name,
+  }));
+  const members = organizations.flatMap((org) => [
+    {
       id: crypto.randomUUID(),
-      name,
-    }));
-    const members = organizations.flatMap((org) => [
+      organization_id: org.id,
+      name: "Alex Morgan",
+      role: "EMPLOYEE",
+    },
+    {
+      id: crypto.randomUUID(),
+      organization_id: org.id,
+      name: "Sam Taylor",
+      role: "MANAGER",
+    },
+    {
+      id: crypto.randomUUID(),
+      organization_id: org.id,
+      name: "Jordan Lee",
+      role: "OBSERVER",
+    },
+  ]);
+  const requests = organizations.flatMap((org) =>
+    [
       {
-        id: crypto.randomUUID(),
-        organization_id: org.id,
-        name: "Alex Morgan",
-        role: "EMPLOYEE",
+        title: "Design workstation",
+        category: "EQUIPMENT",
+        amount_cents: 189900,
+        status: "DRAFT",
       },
       {
-        id: crypto.randomUUID(),
-        organization_id: org.id,
-        name: "Sam Taylor",
-        role: "MANAGER",
+        title: "Team research tools",
+        category: "SOFTWARE",
+        amount_cents: 24900,
+        status: "SUBMITTED",
       },
-      {
-        id: crypto.randomUUID(),
-        organization_id: org.id,
-        name: "Jordan Lee",
-        role: "OBSERVER",
-      },
-    ]);
-    const requests = organizations.flatMap((org) =>
-      [
-        {
-          title: "Design workstation",
-          category: "EQUIPMENT",
-          amount_cents: 189900,
-          status: "DRAFT",
-        },
-        {
-          title: "Team research tools",
-          category: "SOFTWARE",
-          amount_cents: 24900,
-          status: "SUBMITTED",
-        },
-      ].map((row) => ({
-        ...row,
-        id: crypto.randomUUID(),
-        organization_id: org.id,
-        owner_id: members.find(
-          (m) => m.organization_id === org.id && m.role === "EMPLOYEE",
-        )!.id,
-      })),
-    );
-    // One statement provisions the graph. CTE dependencies use inserted rows,
-    // so foreign keys and the transaction still arbitrate the whole bootstrap.
-    await tx.$executeRaw`
-      WITH w AS (
-        INSERT INTO workspaces (id,expires_at) VALUES (${workspaceId}::uuid,${workspaceExpiry}) RETURNING id
-      ), o AS (
-        INSERT INTO organizations (id,workspace_id,name)
-        SELECT x.id,w.id,x.name FROM w, jsonb_to_recordset(${JSON.stringify(organizations)}::jsonb) AS x(id uuid,name text) RETURNING id
-      ), m AS (
-        INSERT INTO members (id,organization_id,name,role)
-        SELECT x.id,o.id,x.name,x.role FROM o JOIN jsonb_to_recordset(${JSON.stringify(members)}::jsonb)
-          AS x(id uuid,organization_id uuid,name text,role text) ON x.organization_id=o.id RETURNING id,organization_id
-      ), r AS (
-        INSERT INTO requests (id,organization_id,owner_id,title,description,category,amount_cents,status)
-        SELECT x.id,m.organization_id,m.id,x.title,'Synthetic demo request. Explore the workflow using your private workspace.',x.category,x.amount_cents,x.status
-        FROM m JOIN jsonb_to_recordset(${JSON.stringify(requests)}::jsonb)
-          AS x(id uuid,organization_id uuid,owner_id uuid,title text,category text,amount_cents int,status text) ON x.owner_id=m.id RETURNING id
-      )
-      INSERT INTO sessions (token_hash,workspace_id,member_id,csrf_token,expires_at)
-      SELECT ${tokenHash},w.id,m.id,${csrfToken},${expiresAt} FROM w,m WHERE m.id=${members[0].id}::uuid`;
+    ].map((row) => ({
+      ...row,
+      id: crypto.randomUUID(),
+      organization_id: org.id,
+      owner_id: members.find(
+        (m) => m.organization_id === org.id && m.role === "EMPLOYEE",
+      )!.id,
+    })),
+  );
+  const payload = JSON.stringify({
+    workspaceId,
+    workspaceExpiry,
+    organizations,
+    members,
+    requests,
+    tokenHash,
+    memberId: members[0].id,
+    csrfToken,
+    expiresAt,
   });
+  const [admission] = await db.$queryRaw<Array<{ accepted: boolean }>>`
+    SELECT public.provision_demo_workspace(${payload}::jsonb,${dailyLimit ?? null}::int) AS accepted`;
+  if (!admission.accepted)
+    throw new AppError(
+      429,
+      "DEMO_CAPACITY",
+      "Today’s demo capacity is full. Please try tomorrow; the proof page remains available.",
+    );
   return { sessionToken, csrfToken };
 }
 

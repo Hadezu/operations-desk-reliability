@@ -9,7 +9,7 @@ import {
   ErrorResponse,
   openApiDocument,
 } from "../packages/contracts/index.js";
-import { hash } from "../packages/core/auth.js";
+import { hash, startDemo } from "../packages/core/auth.js";
 
 if (!process.env.DATABASE_URL || !process.env.MIGRATION_DATABASE_URL)
   throw new Error(
@@ -116,6 +116,29 @@ describe.each(["Prisma", "edge SQL"])("%s adapter", (adapter) => {
   });
 
   describe("tenant and session boundaries", () => {
+    it("ADMISSION: concurrent visitors cannot exceed the daily workspace quota", async () => {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      const before = await db.workspace.count({
+        where: { createdAt: { gte: today } },
+      });
+      const outcomes = await Promise.allSettled([
+        startDemo(appDb, before + 1),
+        startDemo(appDb, before + 1),
+      ]);
+      expect(outcomes.filter((x) => x.status === "fulfilled")).toHaveLength(1);
+      const refusal = outcomes.find(
+        (x) => x.status === "rejected",
+      ) as PromiseRejectedResult;
+      expect(refusal.reason).toMatchObject({
+        status: 429,
+        code: "DEMO_CAPACITY",
+      });
+      expect(
+        await db.workspace.count({ where: { createdAt: { gte: today } } }),
+      ).toBe(before + 1);
+    });
+
     it("TENANT: blocks foreign read, edit, delete and audit", async () => {
       const record = await create(b);
       for (const [method, path, payload] of [
