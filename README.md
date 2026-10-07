@@ -59,7 +59,7 @@ npm run verify
 
 `verify` runs type checks, real-database API tests, a separate clean recovery database, actual worker termination/restart, the Next.js production build, browser tests, and Cloudflare’s deployment dry run. It fails on failed checks and writes the results to `evidence/manifest.json`. The recovery test account needs permission to create its own temporary database; the application process does not receive that account.
 
-For container browser evidence, run `E2E_BASE_URL=http://localhost:3100 EXPECT_REPORT=1 npm run test:e2e`. This additionally waits for a report from the actual Compose worker. The CI container job runs this check.
+For container browser evidence, run `E2E_BASE_URL=http://localhost:3100 EXPECT_REPORT=1 npm run test:e2e`. This additionally waits for a report from the actual Compose worker. The CI container job runs this check. GitHub uses Chrome already installed in its [Ubuntu 24.04 runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md), and records its version; local verification defaults to Playwright Chromium unless `PLAYWRIGHT_CHANNEL=chrome` is set.
 
 ## Develop without Docker
 
