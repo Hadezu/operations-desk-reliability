@@ -1,12 +1,12 @@
-# Operations Desk
+# Operations Desk — requests, approvals and audit history
+
+A working business application for submitting requests, reviewing decisions and tracing every change across separate organizations. Explore the live approval journey, then inspect the transaction and worker-recovery evidence.
 
 [Live demo](https://operations-desk-reliability.vanya-matyushkin.workers.dev) · [Engineering evidence](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) · [GitHub Actions](https://github.com/Hadezu/operations-desk-reliability/actions) · [Portfolio project page](https://work.matiushkin.com/en/services/internal-applications#operations-desk)
 
 [![Verification](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml/badge.svg)](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml)
 
-Multi-tenant approvals with Next.js, Node.js/Fastify, PostgreSQL/Prisma and Redis/BullMQ. Create a request, submit it, approve it as a manager, and inspect the audit trail as an observer.
-
-The interesting part is what happens when two decisions collide, a command is repeated, or a worker dies after committing its result.
+**Stack:** Next.js, Node.js/Fastify, PostgreSQL/Prisma and Redis/BullMQ. Verification covers competing decisions, repeated commands and workers interrupted after committing a result.
 
 **Execution evidence:** [machine-readable verification manifest](evidence/manifest.json). The application’s `/proof/` page displays this artifact, including environment, timestamp, commit and a hash of the tested source. Local results are labelled local. A GitHub Actions link appears only after a real run.
 
@@ -14,7 +14,7 @@ The interesting part is what happens when two decisions collide, a command is re
 
 The [evidence page](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) presents six expandable guarantees with current CI status, expected/observed results and links to the tested source. Activity names the employee or manager behind each action; automated worker events are labelled separately. The live approval flow clearly completes after saving the decision, while report recovery is demonstrated in Docker/CI.
 
-**Try it in two minutes:** open the live demo and select **Try the demo**. Create and submit a request as Alex, approve it as Sam, then inspect the activity as Jordan. Each visitor receives a separate workspace. No account, installation or personal data is needed. The app runs on Cloudflare Workers Free with Neon Free PostgreSQL; it does not depend on a developer laptop. This is an original synthetic portfolio application, not a customer implementation.
+**Try it in two minutes:** open the live demo and select **Try the demo**. Create and submit a request as Alex, approve it as Sam, then inspect the activity as Jordan. Each visitor receives a separate workspace. No account, installation or personal data is needed. The app runs on Cloudflare Workers Free with Neon Free PostgreSQL; it does not depend on a developer laptop. The demo uses synthetic requests and role switching.
 
 The verification workflow runs 40 API/database assertions across the Prisma and edge SQL adapters, five worker-recovery scenarios, desktop/mobile browser journeys, a Cloudflare runtime check and a separate Docker Compose job. See the exact tested revision and observed results in the evidence artifact; the badge shows the latest workflow status.
 
@@ -141,3 +141,10 @@ See [deployment gates and current free-tier sources](docs/DEPLOYMENT.md). No pai
 Free quotas cannot promise uninterrupted service. Static `/proof/` remains independently accessible if the API quota is exhausted. API rate limits, daily demo admission and seven-day retention bound normal demo growth; they do not turn a free tier into an SLA.
 
 The separate contribution to an existing Next.js OSS codebase is tracked in [accepted scope](docs/SCOPE.md) and starts after this application. No OSS contribution is claimed by this original codebase.
+
+
+## Discuss a similar project
+
+I develop complete applications, integrations and focused improvements to existing software. Send the workflow you want to improve and the outcome you need; we can define the scope, delivery stages and acceptance checks together.
+
+**[Discuss your project](https://work.matiushkin.com/en/contact)** · [More implementations](https://github.com/Hadezu) · [Project context and verification scope](PRESENTATION-SCOPE.md)
