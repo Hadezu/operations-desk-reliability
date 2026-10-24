@@ -6,6 +6,20 @@ A working business application for submitting requests, reviewing decisions and 
 
 [![Verification](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml/badge.svg)](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml)
 
+![Published approval register with three roles and a persisted decision](docs/images/desktop.png)
+
+## Try the approval workflow
+
+1. Open the **[live demo](https://operations-desk-reliability.vanya-matyushkin.workers.dev/)** and select **Try the demo**.
+2. Create and submit a request as Alex.
+3. Approve it as Sam, then inspect the recorded decision as Jordan.
+
+Each visitor gets a separate workspace with synthetic requests and role switching. No account or installation is needed.
+
+**Need a similar workflow?** [Describe your approval process](https://work.matiushkin.com/en/contact?example=services%2Finternal-applications) — who submits, who decides and what must be recorded.
+
+## Engineering evidence
+
 **Stack:** Next.js, Node.js/Fastify, PostgreSQL/Prisma and Redis/BullMQ. Verification covers competing decisions, repeated commands and workers interrupted after committing a result.
 
 **Execution evidence:** [machine-readable verification manifest](evidence/manifest.json). The application’s `/proof/` page displays this artifact, including environment, timestamp, commit and a hash of the tested source. Local results are labelled local. A GitHub Actions link appears only after a real run.
@@ -14,11 +28,11 @@ A working business application for submitting requests, reviewing decisions and 
 
 The [evidence page](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) presents six expandable guarantees with current CI status, expected/observed results and links to the tested source. Activity names the employee or manager behind each action; automated worker events are labelled separately. The live approval flow clearly completes after saving the decision, while report recovery is demonstrated in Docker/CI.
 
-**Try it in two minutes:** open the live demo and select **Try the demo**. Create and submit a request as Alex, approve it as Sam, then inspect the activity as Jordan. Each visitor receives a separate workspace. No account, installation or personal data is needed. The app runs on Cloudflare Workers Free with Neon Free PostgreSQL; it does not depend on a developer laptop. The demo uses synthetic requests and role switching.
+
 
 The verification workflow runs 40 API/database assertions across the Prisma and edge SQL adapters, five worker-recovery scenarios, desktop/mobile browser journeys, a Cloudflare runtime check and a separate Docker Compose job. See the exact tested revision and observed results in the evidence artifact; the badge shows the latest workflow status.
 
-![Published approval register with three roles and a persisted decision](docs/images/desktop.png)
+The public demo runs on Cloudflare Workers Free with Neon Free PostgreSQL and does not depend on a developer laptop.
 
 ## What can be checked
 
