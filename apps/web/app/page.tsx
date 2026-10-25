@@ -258,6 +258,8 @@ export default function Desk() {
         </a>
         <div className="nav-label">WORKSPACE</div>
         <nav>
+          <a href="/association/">Association Operations · DE / PL</a>
+          <a href="/booking/">Booking simulator · DE / PL</a>
           <a className="active" href="/">
             <span>▤</span> Requests <span className="nav-dot" />
           </a>

@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-10-25T21:07:50.982Z",
+  "apiProcessKilled": true,
+  "restarted": true,
+  "sessionPreserved": true,
+  "commandReceiptPreserved": true,
+  "bookings": 1,
+  "events": 1,
+  "status": "CONFIRMED"
+}

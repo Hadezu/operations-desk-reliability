@@ -2,9 +2,14 @@ import Fastify, { type FastifyRequest, type FastifyReply } from "fastify";
 import rateLimit from "@fastify/rate-limit";
 import { handleApi, type HttpOptions } from "../../packages/core/http.js";
 
-export async function buildServer(options: HttpOptions) {
+export async function buildServer(
+  options: HttpOptions & { demoStartLimit?: number; apiRateLimit?: number },
+) {
   const app = Fastify({ bodyLimit: 16384, logger: false, trustProxy: false });
-  await app.register(rateLimit, { max: 180, timeWindow: "1 minute" });
+  await app.register(rateLimit, {
+    max: options.apiRateLimit ?? 180,
+    timeWindow: "1 minute",
+  });
   app.setErrorHandler((error, _request, reply) => {
     const value =
       error instanceof Error && "statusCode" in error ? error.statusCode : 500;
@@ -37,7 +42,11 @@ export async function buildServer(options: HttpOptions) {
   // The bootstrap endpoint allocates a private workspace. Limit it separately.
   app.post(
     "/api/demo",
-    { config: { rateLimit: { max: 8, timeWindow: "1 minute" } } },
+    {
+      config: {
+        rateLimit: { max: options.demoStartLimit ?? 8, timeWindow: "1 minute" },
+      },
+    },
     relay,
   );
   app.all("/api/*", relay);

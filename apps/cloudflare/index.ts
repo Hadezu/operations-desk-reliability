@@ -1,6 +1,8 @@
 import { connectEdgeDatabase as connectDatabase } from "../../packages/core/edge-db.js";
 import { connectHttpDatabase } from "../../packages/core/http-db.js";
 import { handleApi } from "../../packages/core/http.js";
+import { prepareAssociationValidation } from "../../packages/core/association.js";
+import { prepareBookingValidation } from "../../packages/core/booking.js";
 
 import {
   CreateRequest,
@@ -25,6 +27,8 @@ for (const schema of [
   Replay,
 ])
   schema.safeParse({});
+prepareAssociationValidation();
+prepareBookingValidation();
 
 function unavailable(status: number, code: string, message: string) {
   return Response.json(
@@ -58,9 +62,16 @@ export default {
         "RATE_LIMITED",
         "Please wait before starting another demo.",
       );
-    const db = env.NEON_DATABASE_URL
-      ? connectHttpDatabase(env.NEON_DATABASE_URL)
-      : connectDatabase(env.HYPERDRIVE.connectionString, 1);
+    // The expansion modules use interactive transactions and must keep one TCP
+    // session for their organization lock, state read and revision commit.
+    const interactive =
+      request.method !== "GET" &&
+      (url.pathname.startsWith("/api/association") ||
+        url.pathname.startsWith("/api/booking"));
+    const db =
+      env.NEON_DATABASE_URL && !interactive
+        ? connectHttpDatabase(env.NEON_DATABASE_URL)
+        : connectDatabase(env.HYPERDRIVE.connectionString, 1);
     try {
       const response = await handleApi(request, {
         db,

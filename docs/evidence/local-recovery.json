@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-10-25T21:07:53.747Z",
+  "sha": "9449d24c3b840761586d6d592e1a8288a93869cc",
+  "kind": "bounded application-table logical backup",
+  "source": "loopback disposable database",
+  "destination": "recovery_fa23c98bf8f74cba8186be7012766e9f",
+  "backupSha256": "e80f2180f77ff434b1377345a3abf7470475879e5cb63749ba54d5988b62d5a3",
+  "counts": {
+    "workspaces": 30,
+    "organizations": 60,
+    "members": 180,
+    "sessions": 28,
+    "requests": 142,
+    "audit_events": 36,
+    "commands": 32,
+    "outbox_events": 4,
+    "reports": 0,
+    "job_attempts": 0,
+    "association_revisions": 44,
+    "booking_revisions": 25
+  },
+  "restoreEqual": true,
+  "failedMigrationRolledBack": true,
+  "health": true,
+  "limitations": [
+    "Same PostgreSQL cluster, separate database; not a regional disaster test",
+    "No role, extension, WAL or external-system backup",
+    "Backup contains synthetic session records and stays in ignored .local"
+  ]
+}

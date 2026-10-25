@@ -2,6 +2,16 @@
 
 A working business application for submitting requests, reviewing decisions and tracing every change across separate organizations. Explore the live approval journey, then inspect the transaction and worker-recovery evidence.
 
+## New workflow modules — separate public test environment
+
+- **[Association Operations](docs/ASSOCIATION.md)** — German/Polish member import review, dues, payment reconciliation, document previews and preserved financial history. Start at `/association/` after local setup.
+- **[Booking & Payment Reliability](docs/BOOKING.md)** — German/Polish resource holds, concurrent booking protection, simulated payment events, cancellation/refund and recovery. Start at `/booking/`.
+- **[Delivery & Recovery Evidence](docs/DELIVERY-RECOVERY.md)** — actual checks, source revision, isolated restore, failed migration and handover boundaries.
+
+[Try Association](https://operations-workflows-staging.vanya-matyushkin.workers.dev/association/) · [Try Booking](https://operations-workflows-staging.vanya-matyushkin.workers.dev/booking/) · [Hosted verification and limits](docs/STAGING-VERIFICATION.md)
+
+Both modules share one application and a dedicated staging PostgreSQL database. The original public approvals service and its database are unchanged. Free hosting limits apply; this is a synthetic test environment, not a production deployment. No real email, bank, card or payment provider is connected.
+
 [Live demo](https://operations-desk-reliability.vanya-matyushkin.workers.dev) · [Engineering evidence](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) · [GitHub Actions](https://github.com/Hadezu/operations-desk-reliability/actions) · [Portfolio project page](https://work.matiushkin.com/en/services/internal-applications#operations-desk)
 
 [![Verification](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml/badge.svg)](https://github.com/Hadezu/operations-desk-reliability/actions/workflows/verify.yml)
@@ -28,28 +38,26 @@ Each visitor gets a separate workspace with synthetic requests and role switchin
 
 The [evidence page](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) presents six expandable guarantees with current CI status, expected/observed results and links to the tested source. Activity names the employee or manager behind each action; automated worker events are labelled separately. The live approval flow clearly completes after saving the decision, while report recovery is demonstrated in Docker/CI.
 
-
-
 The verification workflow runs 40 API/database assertions across the Prisma and edge SQL adapters, five worker-recovery scenarios, desktop/mobile browser journeys, a Cloudflare runtime check and a separate Docker Compose job. See the exact tested revision and observed results in the evidence artifact; the badge shows the latest workflow status.
 
 The public demo runs on Cloudflare Workers Free with Neon Free PostgreSQL and does not depend on a developer laptop.
 
 ## What can be checked
 
-| Claim | Executable proof | Expected observation |
-|---|---|---|
-| Tenant isolation | [API tests](tests/api.test.ts), `TENANT` cases | Foreign read/edit/delete/audit rejected; original row unchanged |
-| Server authorization | Same file, `RBAC` cases | Employee approval and observer writes return 403; manager cannot self-approve |
-| Opaque sessions and CSRF | Same file, `SESSION` / `CSRF` | Hashed server token, expiry/revocation, rejected foreign-origin mutations |
-| Command idempotency | Same file, `IDEMPOTENCY` | Concurrent repeated command produces one request and one audit entry; changed payload returns 409 |
-| Concurrent decisions | Same file, `CONCURRENCY` | One decision succeeds; competing writer gets 409 |
-| Transactional outbox | Same file, `OUTBOX` | Forced database failure rolls back decision and audit |
-| Database guarantees | Same file, `DATABASE` / `AUDIT` / `RETENTION` | Composite tenant FKs, required decision comment, denied audit mutation, bounded expiry cleanup |
-| Worker recovery | [Recovery suite](tests/worker-recovery.ts) | OS-killed worker restarts; one persisted report; interrupted attempt retained |
-| Crash after commit | Same recovery suite | Saved report survives missing queue acknowledgement without a second result |
-| Failed-job replay | Same recovery suite | Three attempts with exponential backoff; observer denied; manager replay audited |
-| Lost queue record | Same recovery suite | Durable outbox intent republished after queue record removal |
-| Usable workflow | [Browser journey](tests/browser/journey.spec.ts) | Desktop/mobile create → submit → approve → audit; tenant switch and reload |
+| Claim                    | Executable proof                                 | Expected observation                                                                              |
+| ------------------------ | ------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Tenant isolation         | [API tests](tests/api.test.ts), `TENANT` cases   | Foreign read/edit/delete/audit rejected; original row unchanged                                   |
+| Server authorization     | Same file, `RBAC` cases                          | Employee approval and observer writes return 403; manager cannot self-approve                     |
+| Opaque sessions and CSRF | Same file, `SESSION` / `CSRF`                    | Hashed server token, expiry/revocation, rejected foreign-origin mutations                         |
+| Command idempotency      | Same file, `IDEMPOTENCY`                         | Concurrent repeated command produces one request and one audit entry; changed payload returns 409 |
+| Concurrent decisions     | Same file, `CONCURRENCY`                         | One decision succeeds; competing writer gets 409                                                  |
+| Transactional outbox     | Same file, `OUTBOX`                              | Forced database failure rolls back decision and audit                                             |
+| Database guarantees      | Same file, `DATABASE` / `AUDIT` / `RETENTION`    | Composite tenant FKs, required decision comment, denied audit mutation, bounded expiry cleanup    |
+| Worker recovery          | [Recovery suite](tests/worker-recovery.ts)       | OS-killed worker restarts; one persisted report; interrupted attempt retained                     |
+| Crash after commit       | Same recovery suite                              | Saved report survives missing queue acknowledgement without a second result                       |
+| Failed-job replay        | Same recovery suite                              | Three attempts with exponential backoff; observer denied; manager replay audited                  |
+| Lost queue record        | Same recovery suite                              | Durable outbox intent republished after queue record removal                                      |
+| Usable workflow          | [Browser journey](tests/browser/journey.spec.ts) | Desktop/mobile create → submit → approve → audit; tenant switch and reload                        |
 
 ## Try the full environment
 
@@ -116,15 +124,15 @@ Next.js App Router, React, TypeScript, forms, API integration, loading/error sta
 
 ## Application rules versus database guarantees
 
-| Application | PostgreSQL |
-|---|---|
-| Resolve tenant from session; scope every request read/write | Composite organization/owner and organization/request foreign keys |
-| Employee own records; manager/observer organization reads | Valid roles/statuses/categories; amount/version checks |
-| Own-draft edits and submission; manager decisions on others | Conditional version update arbitrates concurrent writers |
-| Same-origin mutation, CSRF token, schema validation | Command key uniqueness scoped by tenant, actor, operation |
+| Application                                                    | PostgreSQL                                                          |
+| -------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Resolve tenant from session; scope every request read/write    | Composite organization/owner and organization/request foreign keys  |
+| Employee own records; manager/observer organization reads      | Valid roles/statuses/categories; amount/version checks              |
+| Own-draft edits and submission; manager decisions on others    | Conditional version update arbitrates concurrent writers            |
+| Same-origin mutation, CSRF token, schema validation            | Command key uniqueness scoped by tenant, actor, operation           |
 | Fingerprint prevents reusing a command key for different input | Decision, audit, command result and report intent commit atomically |
-| Reports only enabled with an actual worker | Unique outbox/request report relationships |
-| No audit edit endpoint | Runtime role denied UPDATE/DELETE/TRUNCATE on audit |
+| Reports only enabled with an actual worker                     | Unique outbox/request report relationships                          |
+| No audit edit endpoint                                         | Runtime role denied UPDATE/DELETE/TRUNCATE on audit                 |
 
 Tenant isolation is enforced in the application with relational constraints; **PostgreSQL RLS is not implemented**. The database owner can perform migrations and maintenance. A bounded `SECURITY DEFINER` function removes only expired demo workspaces after seven days. It has a fixed search path and no arguments; the runtime role cannot change workspace expiry to evade audit retention.
 
@@ -155,7 +163,6 @@ See [deployment gates and current free-tier sources](docs/DEPLOYMENT.md). No pai
 Free quotas cannot promise uninterrupted service. Static `/proof/` remains independently accessible if the API quota is exhausted. API rate limits, daily demo admission and seven-day retention bound normal demo growth; they do not turn a free tier into an SLA.
 
 The separate contribution to an existing Next.js OSS codebase is tracked in [accepted scope](docs/SCOPE.md) and starts after this application. No OSS contribution is claimed by this original codebase.
-
 
 ## Discuss a similar project
 

@@ -8,6 +8,8 @@ x-runtime-env: &runtime-env
   REDIS_URL: redis://redis:6379
   APP_ORIGIN: http://localhost:3100
   BACKGROUND_MODE: bullmq
+  DEMO_START_LIMIT: ${DEMO_START_LIMIT:-8}
+  API_RATE_LIMIT: ${API_RATE_LIMIT:-180}
 services:
   postgres:
     image: postgres:18-bookworm

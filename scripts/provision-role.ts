@@ -26,6 +26,12 @@ export async function provisionRole(ownerUrl: string, appUrl: string) {
     );
     await client.query("REVOKE ALL ON _prisma_migrations FROM desk_app");
     await client.query(
+      "REVOKE UPDATE, DELETE, TRUNCATE ON association_revisions FROM desk_app",
+    );
+    await client.query(
+      "REVOKE UPDATE, DELETE, TRUNCATE ON booking_revisions FROM desk_app",
+    );
+    await client.query(
       "REVOKE UPDATE, DELETE, TRUNCATE ON audit_events FROM desk_app",
     );
     await client.query("REVOKE UPDATE, DELETE ON workspaces FROM desk_app");

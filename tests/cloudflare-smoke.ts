@@ -1,5 +1,6 @@
 import "dotenv/config";
 import assert from "node:assert/strict";
+import { memberSample } from "../packages/contracts/association-fixtures.js";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { unstable_dev, experimental_readRawConfig } from "wrangler";
@@ -111,6 +112,60 @@ try {
   assert.equal(report.event, null);
   assert.equal(report.report, null);
   assert.equal((await fetch(`${origin}/proof/`)).status, 200);
+  assert.equal(
+    (
+      await call("/api/association", "POST", {
+        action: "preview",
+        csv: memberSample,
+      })
+    ).status,
+    200,
+  );
+  const association = await (await call("/api/association")).json();
+  const plan = association.plans[0];
+  assert.equal(
+    (
+      await call("/api/association", "POST", {
+        action: "apply",
+        plan: plan.id,
+        digest: plan.digest,
+        rows: [2, 3, 4],
+      })
+    ).status,
+    200,
+  );
+  assert.equal(
+    (
+      await call("/api/association", "POST", {
+        action: "charges",
+        period: "2026-10",
+      })
+    ).status,
+    200,
+  );
+  const hold = await call("/api/booking", "POST", {
+    action: "hold",
+    resource: "bike-01",
+    start: new Date(Date.now() + 3600000).toISOString(),
+    end: new Date(Date.now() + 7200000).toISOString(),
+  });
+  assert.equal(hold.status, 200, await hold.clone().text());
+  const booked = await hold.json();
+  assert.equal(
+    (
+      await call("/api/booking", "POST", {
+        action: "event",
+        booking: booked.booking,
+        event: crypto.randomUUID(),
+        kind: "succeeded",
+      })
+    ).status,
+    200,
+  );
+  assert.equal(
+    (await (await call("/api/booking")).json()).bookings[0].status,
+    "CONFIRMED",
+  );
   await writeFile(
     "evidence/cloudflare-local.json",
     JSON.stringify(

@@ -1,4 +1,10 @@
 import { z } from "zod";
+import { bookingView, bookingCommand } from "./booking.js";
+import {
+  associationView,
+  associationCommand,
+  accountingCsv,
+} from "./association.js";
 import {
   Id,
   ListQuery,
@@ -162,7 +168,30 @@ export async function handleApi(
       const match = url.pathname.match(
         /^\/api\/requests\/([^/]+)(?:\/(submit|decision|audit|report|replay))?$/,
       );
-      if (url.pathname === "/api/session" && request.method === "GET")
+      if (url.pathname === "/api/booking" && request.method === "GET")
+        result = response(await bookingView(db, actor));
+      else if (url.pathname === "/api/booking" && request.method === "POST")
+        result = response(
+          await bookingCommand(db, actor, await body(request), key),
+        );
+      else if (url.pathname === "/api/association" && request.method === "GET")
+        result = response(await associationView(db, actor));
+      else if (
+        url.pathname === "/api/association/export" &&
+        request.method === "GET"
+      )
+        result = new Response(accountingCsv(await associationView(db, actor)), {
+          headers: {
+            "content-type": "text/csv; charset=utf-8",
+            "content-disposition": "attachment; filename=association.csv",
+            "cache-control": "no-store",
+          },
+        });
+      else if (url.pathname === "/api/association" && request.method === "POST")
+        result = response(
+          await associationCommand(db, actor, await body(request), key),
+        );
+      else if (url.pathname === "/api/session" && request.method === "GET")
         result = response(await sessionView(db, actor, options.backgroundMode));
       else if (
         url.pathname === "/api/session/switch" &&

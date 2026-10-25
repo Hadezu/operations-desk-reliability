@@ -35,6 +35,7 @@ export default defineConfig({
     : [
         {
           command: "npm run api",
+          env: { DEMO_START_LIMIT: "30", API_RATE_LIMIT: "1000" },
           url: "http://localhost:3101/api/health",
           reuseExistingServer: !process.env.CI,
           timeout: 30000,

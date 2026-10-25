@@ -10,6 +10,12 @@ const logger = pino({
   redact: ["password", "token", "cookie", "authorization"],
 });
 const app = await buildServer({
+  apiRateLimit: process.env.API_RATE_LIMIT
+    ? Math.max(1, Math.min(1000, Number(process.env.API_RATE_LIMIT) || 180))
+    : 180,
+  demoStartLimit: process.env.DEMO_START_LIMIT
+    ? Math.max(1, Math.min(30, Number(process.env.DEMO_START_LIMIT) || 8))
+    : 8,
   db,
   origin: process.env.APP_ORIGIN ?? "http://localhost:3100",
   backgroundMode:
