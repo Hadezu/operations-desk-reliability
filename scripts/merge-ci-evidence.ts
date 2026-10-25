@@ -28,7 +28,7 @@ assert.ok(
   manifest.checks.every((c: { status: string }) => c.status !== "failed"),
 );
 assert.equal(browser.config.metadata.expectsWorkerReport, true);
-assert.equal(browser.stats.expected, 2);
+assert.equal(browser.stats.expected, 10);
 for (const field of ["unexpected", "flaky", "skipped"])
   assert.equal(browser.stats[field], 0);
 assert.deepEqual(browser.errors, []);
@@ -41,7 +41,7 @@ assert.ok(check);
 Object.assign(check, {
   status: "passed",
   observed:
-    "GitHub containers job built images, bootstrapped a clean PostgreSQL database and passed desktop/mobile approval journeys, including a persisted report from the real BullMQ worker.",
+    "GitHub containers job built images, bootstrapped a clean PostgreSQL database and passed all 10 desktop/mobile approval, association and booking journeys, including a persisted report from the real BullMQ worker.",
   source: ".github/workflows/verify.yml",
   durationMs: browser.stats.duration,
 });
@@ -60,3 +60,4 @@ await writeFile(
   JSON.stringify(manifest, null, 2) + "\n",
 );
 console.log(`Release proof assembled from successful jobs: ${ciUrl}`);
+
