@@ -40,6 +40,7 @@ export async function sourceHash() {
     "vitest.config.ts",
     "playwright.config.ts",
     "wrangler.jsonc",
+    "wrangler.staging.jsonc",
     "Dockerfile",
     "compose.yaml",
   );

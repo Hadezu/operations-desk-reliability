@@ -193,6 +193,10 @@ const Input = z.discriminatedUnion("action", [
     })
     .strict(),
 ]);
+export function prepareAssociationValidation() {
+  Member.safeParse({});
+  for (const schema of Input.options) schema.safeParse({});
+}
 export async function associationCommand(
   db: Database,
   actor: Identity,

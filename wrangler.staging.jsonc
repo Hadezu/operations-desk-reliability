@@ -1,0 +1,39 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "operations-workflows-staging",
+  "workers_dev": true,
+  "preview_urls": false,
+  "main": "apps/cloudflare/index.ts",
+  "compatibility_date": "2026-10-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "minify": true,
+  "alias": { "#prisma-client": "./.generated/prisma-edge/client.ts" },
+  "assets": {
+    "directory": "apps/web/out",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
+  },
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "version_metadata": { "binding": "VERSION" },
+  "secrets": { "required": ["NEON_DATABASE_URL"] },
+  "vars": {
+    "APP_ORIGIN": "https://operations-workflows-staging.vanya-matyushkin.workers.dev",
+    "DEMO_DAILY_LIMIT": "60",
+  },
+  "hyperdrive": [
+    { "binding": "HYPERDRIVE", "id": "9eaff41a04984ca3858441c460898a7a" },
+  ],
+  "ratelimits": [
+    {
+      "name": "API_LIMIT",
+      "namespace_id": "26102501",
+      "simple": { "limit": 90, "period": 60 },
+    },
+    {
+      "name": "DEMO_LIMIT",
+      "namespace_id": "26102502",
+      "simple": { "limit": 4, "period": 60 },
+    },
+  ],
+  "triggers": { "crons": ["37 * * * *"] },
+}

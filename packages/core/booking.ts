@@ -51,6 +51,9 @@ const Input = z.discriminatedUnion("action", [
     .strict(),
   z.object({ action: z.literal("refresh") }).strict(),
 ]);
+export function prepareBookingValidation() {
+  for (const schema of Input.options) schema.safeParse({});
+}
 function expire(s: BookingState, now: number) {
   for (const b of s.bookings)
     if (b.status === "HELD" && Date.parse(b.expires) <= now)
