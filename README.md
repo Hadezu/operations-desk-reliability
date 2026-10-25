@@ -2,13 +2,15 @@
 
 A working business application for submitting requests, reviewing decisions and tracing every change across separate organizations. Explore the live approval journey, then inspect the transaction and worker-recovery evidence.
 
-## New workflow modules — runnable locally, pending release
+## New workflow modules — separate public test environment
 
 - **[Association Operations](docs/ASSOCIATION.md)** — German/Polish member import review, dues, payment reconciliation, document previews and preserved financial history. Start at `/association/` after local setup.
 - **[Booking & Payment Reliability](docs/BOOKING.md)** — German/Polish resource holds, concurrent booking protection, simulated payment events, cancellation/refund and recovery. Start at `/booking/`.
 - **[Delivery & Recovery Evidence](docs/DELIVERY-RECOVERY.md)** — actual checks, source revision, isolated restore, failed migration and handover boundaries.
 
-These additions use the same application and PostgreSQL database; they do not require new microservices. The existing public approval URL below does **not** imply that these new routes have been deployed. No real email, bank, card or payment provider is connected.
+[Try Association](https://operations-workflows-staging.vanya-matyushkin.workers.dev/association/) · [Try Booking](https://operations-workflows-staging.vanya-matyushkin.workers.dev/booking/) · [Hosted verification and limits](docs/STAGING-VERIFICATION.md)
+
+Both modules share one application and a dedicated staging PostgreSQL database. The original public approvals service and its database are unchanged. Free hosting limits apply; this is a synthetic test environment, not a production deployment. No real email, bank, card or payment provider is connected.
 
 [Live demo](https://operations-desk-reliability.vanya-matyushkin.workers.dev) · [Engineering evidence](https://operations-desk-reliability.vanya-matyushkin.workers.dev/proof/) · [GitHub Actions](https://github.com/Hadezu/operations-desk-reliability/actions) · [Portfolio project page](https://work.matiushkin.com/en/services/internal-applications#operations-desk)
 

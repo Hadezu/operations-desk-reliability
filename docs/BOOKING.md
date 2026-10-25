@@ -1,5 +1,7 @@
 # Booking & Payment Reliability
 
+[Open the public test demo](https://operations-workflows-staging.vanya-matyushkin.workers.dev/booking/) · [Hosted verification and limits](STAGING-VERIFICATION.md)
+
 A runnable independent DE/PL demonstration of a resource reservation workflow. The catalog contains one synthetic touring bicycle, desk and meeting room per isolated organization. A visitor chooses a future interval, holds one resource, simulates payment, confirms, cancels and simulates refund. Start `/booking/` in the local application.
 
 ![German desktop booking and simulated refund](images/booking-de-desktop.png)

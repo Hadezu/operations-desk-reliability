@@ -1,5 +1,7 @@
 # Delivery & Recovery Evidence
 
+**Hosted follow-up:** the new modules now run in a separate public test environment. See [staging verification](STAGING-VERIFICATION.md) for its exact version, executed checks and CPU limitations. Earlier local-only results below remain historical evidence.
+
 This page describes bounded engineering checks, not an SLA, independent security audit, production deployment or 24/7 support. Final exact revision/results are recorded in `docs/EXPANSION-RESULTS.md`.
 
 ## Reproduce from a clean checkout

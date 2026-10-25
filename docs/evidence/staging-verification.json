@@ -1,0 +1,197 @@
+{
+  "generatedAt": "2026-10-25T22:00:42.949Z",
+  "implementationCommit": "c7d125f5996700e547dc51c1c269905e284ccac0",
+  "sourceHash": "8dadb0a1cf6ab4b73ce2d86ae839ea541b807ddf7e9c9c63aae557e42e86997c",
+  "origin": "https://operations-workflows-staging.vanya-matyushkin.workers.dev",
+  "deploymentVersion": "be972a51-e5ef-41fb-92e6-81b4c037eb25",
+  "functionalStatus": "passed",
+  "browser": {
+    "passed": 10,
+    "batches": [
+      {
+        "file": "association",
+        "project": "desktop",
+        "stats": {
+          "startTime": "2026-10-25T21:54:29.887Z",
+          "duration": 23175.454,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "file": "booking",
+        "project": "desktop",
+        "stats": {
+          "startTime": "2026-10-25T21:55:59.036Z",
+          "duration": 16895.889,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "file": "association",
+        "project": "mobile",
+        "stats": {
+          "startTime": "2026-10-25T21:57:22.257Z",
+          "duration": 27889.998,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "file": "booking",
+        "project": "mobile",
+        "stats": {
+          "startTime": "2026-10-25T21:58:56.141Z",
+          "duration": 18061.787999999997,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "file": "journey",
+        "project": "both",
+        "stats": {
+          "startTime": "2026-10-25T22:00:20.022Z",
+          "duration": 19055.796,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      }
+    ]
+  },
+  "smoke": {
+    "generatedAt": "2026-10-25T21:58:14.605Z",
+    "origin": "https://operations-workflows-staging.vanya-matyushkin.workers.dev",
+    "deploymentVersion": "be972a51-e5ef-41fb-92e6-81b4c037eb25",
+    "status": "passed",
+    "sourceHash": "8dadb0a1cf6ab4b73ce2d86ae839ea541b807ddf7e9c9c63aae557e42e86997c",
+    "durationMs": 3232,
+    "checks": [
+      "HTTPS API and secure opaque session",
+      "Idempotent replay, conflicting payload rejection, CSRF and employee authorization",
+      "Draft edit and atomic deletion through the hosted database transport",
+      "Persisted manager approval, one creation audit and no absent-worker jobs",
+      "Observer write denial, cross-tenant denial and session revocation",
+      "Static evidence page available independently of the API"
+    ]
+  },
+  "access": {
+    "checkedAt": "2026-10-25T21:48:44.675Z",
+    "status": "passed",
+    "host": "ep-steep-mouse-ba4qkixi.c-8.eu-central-1.aws.neon.tech",
+    "runtimeRole": "desk_app",
+    "migrationRole": "workflow_staging_owner",
+    "checked": [
+      "Runtime authenticates as a distinct restricted desk_app role",
+      "Runtime has no inherited roles or owned application tables",
+      "Application CRUD and bounded cleanup available; schema creation denied",
+      "Atomic command function runs with caller privileges, without owner elevation",
+      "Audit mutation, workspace expiry manipulation and migration metadata access denied by PostgreSQL"
+    ]
+  },
+  "revisionAccessAndConnections": {
+    "at": "2026-10-25T21:58:54.888Z",
+    "identity": {
+      "current_user": "desk_app",
+      "current_database": "workflow_staging"
+    },
+    "checks": [
+      "UPDATE association_revisions denied",
+      "DELETE association_revisions denied",
+      "TRUNCATE association_revisions denied",
+      "UPDATE booking_revisions denied",
+      "DELETE booking_revisions denied",
+      "TRUNCATE booking_revisions denied"
+    ],
+    "connections": [
+      {
+        "state": "active",
+        "count": 1
+      },
+      {
+        "state": "idle",
+        "count": 12
+      }
+    ],
+    "limits": {
+      "max_connections": "901",
+      "idle_in_transaction": 0
+    }
+  },
+  "hyperdrive": {
+    "id": "9eaff41a04984ca3858441c460898a7a",
+    "name": "operations-workflows-staging",
+    "originHost": "ep-steep-mouse-ba4qkixi.c-8.eu-central-1.aws.neon.tech",
+    "database": "workflow_staging",
+    "user": "desk_app",
+    "caching": {
+      "disabled": true
+    },
+    "origin_connection_limit": 5
+  },
+  "isolation": [
+    {
+      "origin": "https://operations-workflows-staging.vanya-matyushkin.workers.dev",
+      "status": 200,
+      "version": "be972a51-e5ef-41fb-92e6-81b4c037eb25",
+      "cache": "no-store",
+      "cloudflareCache": null,
+      "body": {
+        "status": "ok",
+        "backgroundMode": "disabled"
+      }
+    },
+    {
+      "origin": "https://operations-desk-reliability.vanya-matyushkin.workers.dev",
+      "status": 200,
+      "version": "1697a7f1-83d0-40ea-8059-7067f9f7b171",
+      "cache": "no-store",
+      "cloudflareCache": null,
+      "body": {
+        "status": "ok",
+        "backgroundMode": "disabled"
+      }
+    }
+  ],
+  "cpu": {
+    "all": {
+      "samples": 142,
+      "p50Ms": 4,
+      "p95Ms": 14,
+      "maxMs": 27
+    },
+    "GET": {
+      "samples": 66,
+      "p50Ms": 3,
+      "p95Ms": 5,
+      "maxMs": 6
+    },
+    "POST": {
+      "samples": 73,
+      "p50Ms": 8,
+      "p95Ms": 18,
+      "maxMs": 27
+    },
+    "invocationErrors": 0,
+    "freeCpuTargetMs": 10,
+    "freeCpuTargetMet": false
+  },
+  "limitations": [
+    "Small synthetic sample, not a load or uptime test",
+    "CPU target exceeded on some writes; free burst tolerance is not guaranteed",
+    "Hyperdrive limit is soft and excludes separate HTTPS driver pools",
+    "No paid upgrade, real payments or email",
+    "No changes to the original Operations Desk deployment/database"
+  ]
+}

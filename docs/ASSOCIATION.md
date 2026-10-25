@@ -1,5 +1,7 @@
 # Association Operations — members, dues and reconciliation
 
+[Open the public test demo](https://operations-workflows-staging.vanya-matyushkin.workers.dev/association/) · [Hosted verification and limits](STAGING-VERIFICATION.md)
+
 An independent synthetic product demonstration for associations and foundations. The owner defines requirements, directs AI-assisted implementation, reviews test evidence and accepts delivery. This is not a client deployment or a named customer's specification.
 
 ![German desktop reconciliation, captured from the running app](images/association-de-desktop.png)

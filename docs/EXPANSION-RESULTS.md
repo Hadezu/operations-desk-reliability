@@ -1,5 +1,7 @@
 # Commercial expansion — executed verification
 
+**Hosted follow-up:** the new modules now run in a separate public test environment. See [staging verification](STAGING-VERIFICATION.md) for its exact version, executed checks and CPU limitations. Earlier local-only results below remain historical evidence.
+
 Recorded 2026-10-25. These are synthetic-data engineering demonstrations, not client deployments, independent security audits, WCAG certification, DATEV certification or an SLA.
 
 ## Exact revisions and evidence
