@@ -68,6 +68,9 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 24, cache: npm }
       - run: docker compose up --build --wait --wait-timeout 180
+        env:
+          DEMO_START_LIMIT: "30"
+          API_RATE_LIMIT: "1000"
       - run: npm ci
       - run: google-chrome --version
       - run: npm run test:e2e

@@ -58,9 +58,15 @@ export default {
         "RATE_LIMITED",
         "Please wait before starting another demo.",
       );
-    const db = env.NEON_DATABASE_URL
-      ? connectHttpDatabase(env.NEON_DATABASE_URL)
-      : connectDatabase(env.HYPERDRIVE.connectionString, 1);
+    // The expansion modules use interactive transactions and must keep one TCP
+    // session for their organization lock, state read and revision commit.
+    const interactive =
+      url.pathname.startsWith("/api/association") ||
+      url.pathname.startsWith("/api/booking");
+    const db =
+      env.NEON_DATABASE_URL && !interactive
+        ? connectHttpDatabase(env.NEON_DATABASE_URL)
+        : connectDatabase(env.HYPERDRIVE.connectionString, 1);
     try {
       const response = await handleApi(request, {
         db,

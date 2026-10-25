@@ -19,6 +19,13 @@ const hash = await sourceHash();
 await mkdir("evidence", { recursive: true });
 const steps = [
   [
+    "Booking process restart",
+    "Killed API restarts with the same session and one payment event",
+    "scripts/booking-restart-drill.ts",
+    "node_modules/tsx/dist/cli.mjs",
+    ["scripts/booking-restart-drill.ts"],
+  ],
+  [
     "TypeScript",
     "Node and web strict type checks pass",
     "tsconfig.json",
@@ -52,6 +59,13 @@ const steps = [
     "apps/web/next.config.mjs",
     "node_modules/next/dist/bin/next",
     ["build", "apps/web", "--webpack"],
+  ],
+  [
+    "Application backup and restore",
+    "Synthetic application tables restore exactly and failed migration rolls back",
+    "scripts/recovery-drill.ts",
+    "node_modules/tsx/dist/cli.mjs",
+    ["scripts/recovery-drill.ts"],
   ],
   [
     "Browser workflow",
