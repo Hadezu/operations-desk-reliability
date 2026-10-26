@@ -1,3 +1,4 @@
+import { revisionCommand } from "./revision-command.js";
 import { z } from "zod";
 import type { Database } from "./db.js";
 import type { Identity } from "./auth.js";
@@ -194,7 +195,14 @@ const Input = z.discriminatedUnion("action", [
     .strict(),
 ]);
 export function prepareAssociationValidation() {
-  Member.safeParse({});
+  Member.safeParse({
+    id: "M001",
+    name: "Demo Startup",
+    email: "startup@example.invalid",
+    category: "regular",
+    status: "active",
+  });
+  Input.safeParse({ action: "preview", csv: "" });
   for (const schema of Input.options) schema.safeParse({});
 }
 export async function associationCommand(
@@ -207,152 +215,147 @@ export async function associationCommand(
   if (!key || !/^[\w-]{8,100}$/.test(key)) fail("INVALID_IDEMPOTENCY_KEY", 400);
   const input = Input.parse(raw);
   const fingerprint = await hash(JSON.stringify(input));
-  return db.$transaction(async (tx) => {
-    // Serialize this bounded organization's commands, including distinct retry keys.
-    await tx.$queryRaw`SELECT id FROM organizations WHERE id=${actor.organizationId}::uuid FOR UPDATE`;
-    const receipts = await tx.$queryRaw<
-      { fingerprint: string; outcome: unknown }[]
-    >`SELECT fingerprint,outcome FROM association_revisions WHERE organization_id=${actor.organizationId}::uuid AND actor_id=${actor.memberId}::uuid AND command_key=${key}`;
-    if (receipts.length) {
-      if (receipts[0].fingerprint !== fingerprint) fail("IDEMPOTENCY_MISMATCH");
-      return receipts[0].outcome;
-    }
-    const rows = await tx.$queryRaw<
-      { revision: number; state: AssociationState }[]
-    >`SELECT revision,state FROM association_revisions WHERE organization_id=${actor.organizationId}::uuid ORDER BY revision DESC LIMIT 1`;
-    const revision = (rows[0]?.revision ?? 0) + 1;
-    if (revision > 200) fail("DEMO_LIMIT", 429);
-    const s = rows[0]?.state ?? empty();
-    let detail: unknown = {};
-    if (input.action === "preview") {
-      if (s.plans.length >= 20) fail("DEMO_LIMIT", 429);
-      const planRows = previewMembers(input.csv, s.members);
-      const baseline = await hash(JSON.stringify([s.memberVersion, s.members]));
-      const plan = {
-        id: crypto.randomUUID(),
-        digest: await hash(JSON.stringify(planRows)),
-        baseline,
-        rows: planRows,
-        applied: false,
-      };
-      s.plans.push(plan);
-      detail = { plan: plan.id };
-    } else if (input.action === "apply") {
-      const plan = s.plans.find((p) => p.id === input.plan);
-      if (!plan || plan.digest !== input.digest) fail("PLAN_NOT_FOUND", 404);
-      if (plan.applied) fail("PLAN_APPLIED");
-      if (
-        plan.baseline !==
-        (await hash(JSON.stringify([s.memberVersion, s.members])))
-      )
-        fail("STALE_PLAN");
-      if (new Set(input.rows).size !== input.rows.length)
-        fail("INVALID_SELECTION", 400);
-      for (const n of input.rows) {
-        const r = plan.rows.find((r) => r.row === n);
-        if (!r?.member || r.issue) fail("INVALID_SELECTION", 400);
-        const index = s.members.findIndex((m) => m.id === r.member!.id);
-        if (index < 0) s.members.push(r.member);
-        else s.members[index] = r.member;
-      }
-      if (s.members.length > 100) fail("DEMO_LIMIT", 429);
-      s.memberVersion = (s.memberVersion ?? 0) + 1;
-      plan.applied = true;
-      detail = { imported: input.rows.length };
-    } else if (input.action === "status") {
-      const m = s.members.find((m) => m.id === input.id);
-      if (!m) fail("MEMBER_NOT_FOUND", 404);
-      m.status = input.status;
-      s.memberVersion = (s.memberVersion ?? 0) + 1;
-    } else if (input.action === "charges") {
-      for (const m of s.members.filter((m) => m.status === "active")) {
-        const id = `${m.id}/${input.period}`;
-        if (!s.charges.some((c) => c.id === id))
-          s.charges.push({
-            id,
-            member: m.id,
-            period: input.period,
-            cents: m.category === "regular" ? 12000 : 6000,
-          });
-      }
-      if (s.charges.length > 300) fail("DEMO_LIMIT", 429);
-    } else if (input.action === "payments") {
-      for (const [id, reference, centsText] of csvRows(
-        input.csv,
-        "id,reference,cents",
-      )) {
+  return revisionCommand(
+    db,
+    actor,
+    "association",
+    key,
+    fingerprint,
+    input.action,
+    empty,
+    async (s, revision, now) => {
+      let detail: unknown = {};
+      if (input.action === "preview") {
+        if (s.plans.length >= 20) fail("DEMO_LIMIT", 429);
+        const planRows = previewMembers(input.csv, s.members);
+        const baseline = await hash(
+          JSON.stringify([s.memberVersion, s.members]),
+        );
+        const plan = {
+          id: crypto.randomUUID(),
+          digest: await hash(JSON.stringify(planRows)),
+          baseline,
+          rows: planRows,
+          applied: false,
+        };
+        s.plans.push(plan);
+        detail = { plan: plan.id };
+      } else if (input.action === "apply") {
+        const plan = s.plans.find((p) => p.id === input.plan);
+        if (!plan || plan.digest !== input.digest) fail("PLAN_NOT_FOUND", 404);
+        if (plan.applied) fail("PLAN_APPLIED");
         if (
-          !/^BANK[0-9]{3,8}$/.test(id) ||
-          !/^([A-Z0-9]{1,20})?$/.test(reference) ||
-          !/^\d{1,7}$/.test(centsText) ||
-          Number(centsText) <= 0
+          plan.baseline !==
+          (await hash(JSON.stringify([s.memberVersion, s.members])))
         )
-          fail("INVALID_PAYMENT", 400);
-        const p = { id, reference, cents: Number(centsText) };
-        const prior = s.payments.find((v) => v.id === id);
+          fail("STALE_PLAN");
+        if (new Set(input.rows).size !== input.rows.length)
+          fail("INVALID_SELECTION", 400);
+        for (const n of input.rows) {
+          const r = plan.rows.find((r) => r.row === n);
+          if (!r?.member || r.issue) fail("INVALID_SELECTION", 400);
+          const index = s.members.findIndex((m) => m.id === r.member!.id);
+          if (index < 0) s.members.push(r.member);
+          else s.members[index] = r.member;
+        }
+        if (s.members.length > 100) fail("DEMO_LIMIT", 429);
+        s.memberVersion = (s.memberVersion ?? 0) + 1;
+        plan.applied = true;
+        detail = { imported: input.rows.length };
+      } else if (input.action === "status") {
+        const m = s.members.find((m) => m.id === input.id);
+        if (!m) fail("MEMBER_NOT_FOUND", 404);
+        m.status = input.status;
+        s.memberVersion = (s.memberVersion ?? 0) + 1;
+      } else if (input.action === "charges") {
+        for (const m of s.members.filter((m) => m.status === "active")) {
+          const id = `${m.id}/${input.period}`;
+          if (!s.charges.some((c) => c.id === id))
+            s.charges.push({
+              id,
+              member: m.id,
+              period: input.period,
+              cents: m.category === "regular" ? 12000 : 6000,
+            });
+        }
+        if (s.charges.length > 300) fail("DEMO_LIMIT", 429);
+      } else if (input.action === "payments") {
+        for (const [id, reference, centsText] of csvRows(
+          input.csv,
+          "id,reference,cents",
+        )) {
+          if (
+            !/^BANK[0-9]{3,8}$/.test(id) ||
+            !/^([A-Z0-9]{1,20})?$/.test(reference) ||
+            !/^\d{1,7}$/.test(centsText) ||
+            Number(centsText) <= 0
+          )
+            fail("INVALID_PAYMENT", 400);
+          const p = { id, reference, cents: Number(centsText) };
+          const prior = s.payments.find((v) => v.id === id);
+          if (
+            prior &&
+            (prior.reference !== p.reference || prior.cents !== p.cents)
+          )
+            fail("PAYMENT_CONFLICT");
+          if (!prior) s.payments.push(p);
+        }
+        if (s.payments.length > 300) fail("DEMO_LIMIT", 429);
+      } else if (input.action === "reconcile") {
+        // Only explicit reference + unique unpaid charge can be automatic.
+        for (const p of s.payments.filter((p) => p.reference)) {
+          const issue = discrepancies(s).find((d) => d.id === p.id);
+          if (issue?.candidates.length === 1)
+            s.allocations.push({ payment: p.id, charge: issue.candidates[0] });
+        }
+      } else if (input.action === "resolve") {
+        const p = s.payments.find((p) => p.id === input.payment);
+        const c = s.charges.find((c) => c.id === input.charge);
+        if (!p || !c) fail("MATCH_NOT_FOUND", 404);
         if (
-          prior &&
-          (prior.reference !== p.reference || prior.cents !== p.cents)
+          p.cents !== c.cents ||
+          s.allocations.some((a) => a.payment === p.id || a.charge === c.id)
         )
-          fail("PAYMENT_CONFLICT");
-        if (!prior) s.payments.push(p);
+          fail("ALLOCATION_CONFLICT");
+        s.allocations.push({ payment: p.id, charge: c.id });
+      } else {
+        const m = s.members.find((m) => m.id === input.member);
+        if (!m) fail("MEMBER_NOT_FOUND", 404);
+        const unpaid = s.charges.filter(
+          (c) =>
+            c.member === m.id && !s.allocations.some((a) => a.charge === c.id),
+        );
+        const total = unpaid.reduce((sum, c) => sum + c.cents, 0);
+        const labels =
+          input.language === "de"
+            ? {
+                notice: "Beitragsmitteilung",
+                welcome: "Willkommen",
+                reminder: "Zahlungserinnerung",
+                demo: "DEMO — kein steuerlicher Beleg. Keine E-Mail versendet.",
+                amount: "Offene Beiträge",
+              }
+            : {
+                notice: "Zawiadomienie o składce",
+                welcome: "Witamy",
+                reminder: "Przypomnienie o płatności",
+                demo: "DEMO — nie jest dokumentem księgowym. Nie wysłano e-maila.",
+                amount: "Otwarte składki",
+              };
+        const text = `${labels[input.kind]}\n${m.name}\n${m.email}\n${labels.amount}: ${(total / 100).toFixed(2)} EUR\n${unpaid.map((c) => `${c.id}: ${(c.cents / 100).toFixed(2)} EUR`).join("\n")}\n${labels.demo}`;
+        s.documents.push({
+          id: crypto.randomUUID(),
+          kind: input.kind,
+          member: m.id,
+          language: input.language,
+          text,
+        });
+        if (s.documents.length > 50) fail("DEMO_LIMIT", 429);
       }
-      if (s.payments.length > 300) fail("DEMO_LIMIT", 429);
-    } else if (input.action === "reconcile") {
-      // Only explicit reference + unique unpaid charge can be automatic.
-      for (const p of s.payments.filter((p) => p.reference)) {
-        const issue = discrepancies(s).find((d) => d.id === p.id);
-        if (issue?.candidates.length === 1)
-          s.allocations.push({ payment: p.id, charge: issue.candidates[0] });
-      }
-    } else if (input.action === "resolve") {
-      const p = s.payments.find((p) => p.id === input.payment);
-      const c = s.charges.find((c) => c.id === input.charge);
-      if (!p || !c) fail("MATCH_NOT_FOUND", 404);
-      if (
-        p.cents !== c.cents ||
-        s.allocations.some((a) => a.payment === p.id || a.charge === c.id)
-      )
-        fail("ALLOCATION_CONFLICT");
-      s.allocations.push({ payment: p.id, charge: c.id });
-    } else {
-      const m = s.members.find((m) => m.id === input.member);
-      if (!m) fail("MEMBER_NOT_FOUND", 404);
-      const unpaid = s.charges.filter(
-        (c) =>
-          c.member === m.id && !s.allocations.some((a) => a.charge === c.id),
-      );
-      const total = unpaid.reduce((sum, c) => sum + c.cents, 0);
-      const labels =
-        input.language === "de"
-          ? {
-              notice: "Beitragsmitteilung",
-              welcome: "Willkommen",
-              reminder: "Zahlungserinnerung",
-              demo: "DEMO — kein steuerlicher Beleg. Keine E-Mail versendet.",
-              amount: "Offene Beiträge",
-            }
-          : {
-              notice: "Zawiadomienie o składce",
-              welcome: "Witamy",
-              reminder: "Przypomnienie o płatności",
-              demo: "DEMO — nie jest dokumentem księgowym. Nie wysłano e-maila.",
-              amount: "Otwarte składki",
-            };
-      const text = `${labels[input.kind]}\n${m.name}\n${m.email}\n${labels.amount}: ${(total / 100).toFixed(2)} EUR\n${unpaid.map((c) => `${c.id}: ${(c.cents / 100).toFixed(2)} EUR`).join("\n")}\n${labels.demo}`;
-      s.documents.push({
-        id: crypto.randomUUID(),
-        kind: input.kind,
-        member: m.id,
-        language: input.language,
-        text,
-      });
-      if (s.documents.length > 50) fail("DEMO_LIMIT", 429);
-    }
-    const outcome = { revision, action: input.action, ...(detail as object) };
-    await tx.$executeRaw`INSERT INTO association_revisions(organization_id,revision,actor_id,operation,command_key,fingerprint,state,outcome) VALUES(${actor.organizationId}::uuid,${revision},${actor.memberId}::uuid,${input.action},${key},${fingerprint},${JSON.stringify(s)}::jsonb,${JSON.stringify(outcome)}::jsonb)`;
-    return outcome;
-  });
+      const outcome = { revision, action: input.action, ...(detail as object) };
+      return outcome;
+    },
+  );
 }
 
 export function accountingCsv(s: AssociationState) {

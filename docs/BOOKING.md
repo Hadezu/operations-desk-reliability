@@ -29,7 +29,7 @@ stateDiagram-v2
   PAYMENT_REVIEW --> REFUNDED: simulator refund
 ```
 
-The backend uses the existing session/origin/CSRF boundary and PostgreSQL organization lock. The hold check and append-only revision commit together. Half-open intervals permit adjacent reservations; overlapping HELD/CONFIRMED intervals are rejected. Expiry uses PostgreSQL time, is reflected on reads, and is persisted by the next command. No worker is needed to release an expired hold. The UI polls every ten seconds and offers explicit refresh.
+The backend uses the existing session/origin/CSRF boundary and optimistic PostgreSQL revision concurrency. The hold check uses a consistent revision snapshot; the state and receipt commit in a single INSERT. A conflicting next-revision key triggers a fresh snapshot and recomputation, at most three times. Therefore two callers cannot both commit overlapping holds from the same state. Half-open intervals permit adjacent reservations; overlapping HELD/CONFIRMED intervals are rejected. Expiry uses PostgreSQL time, is reflected on reads, and is persisted by the next command. No worker is needed to release an expired hold. The UI polls every ten seconds and offers explicit refresh.
 
 Command keys bind validated payloads. Payment event IDs have independent duplicate/conflict checks, including across command keys. A decline after confirmation cannot undo a successful payment. Refund-before-success is durable and reconsidered after success. Historical snapshots preserve the state before reconsideration. The simulator endpoint requires manager role; it is deliberately not a production webhook.
 
