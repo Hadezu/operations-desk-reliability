@@ -1,0 +1,335 @@
+{
+  "generatedAt": "2026-10-26T01:17:49.993Z",
+  "origin": "https://operations-workflows-staging.vanya-matyushkin.workers.dev",
+  "implementationCommit": "517e8958c7daeee7780529004b6fd6875e632b16",
+  "deploymentVersion": "d4ca54cc-879a-40fc-b7b2-e3e2912fa3c3",
+  "baseline": {
+    "version": "be972a51-e5ef-41fb-92e6-81b4c037eb25",
+    "samples": 142,
+    "p50Ms": 4,
+    "p95Ms": 14,
+    "maxMs": 27
+  },
+  "cpu": {
+    "all": {
+      "samples": 151,
+      "p50Ms": 2,
+      "p95Ms": 4,
+      "maxMs": 7,
+      "over10ms": 0
+    },
+    "GET": {
+      "samples": 70,
+      "p50Ms": 2,
+      "p95Ms": 3,
+      "maxMs": 4,
+      "over10ms": 0
+    },
+    "POST": {
+      "samples": 78,
+      "p50Ms": 2,
+      "p95Ms": 5,
+      "maxMs": 7,
+      "over10ms": 0
+    },
+    "routes": {
+      "POST /api/demo": {
+        "samples": 12,
+        "p50Ms": 2,
+        "p95Ms": 4,
+        "maxMs": 4,
+        "over10ms": 0
+      },
+      "POST /api/session/switch": {
+        "samples": 12,
+        "p50Ms": 5,
+        "p95Ms": 7,
+        "maxMs": 7,
+        "over10ms": 0
+      },
+      "GET /api/association": {
+        "samples": 23,
+        "p50Ms": 2,
+        "p95Ms": 2,
+        "maxMs": 3,
+        "over10ms": 0
+      },
+      "POST /api/association": {
+        "samples": 20,
+        "p50Ms": 2,
+        "p95Ms": 4,
+        "maxMs": 5,
+        "over10ms": 0
+      },
+      "GET /api/association/export": {
+        "samples": 3,
+        "p50Ms": 2,
+        "p95Ms": 4,
+        "maxMs": 4,
+        "over10ms": 0
+      },
+      "GET /api/booking": {
+        "samples": 20,
+        "p50Ms": 2,
+        "p95Ms": 3,
+        "maxMs": 4,
+        "over10ms": 0
+      },
+      "POST /api/booking": {
+        "samples": 21,
+        "p50Ms": 2,
+        "p95Ms": 3,
+        "maxMs": 4,
+        "over10ms": 0
+      },
+      "GET /api/health": {
+        "samples": 2,
+        "p50Ms": 1,
+        "p95Ms": 1,
+        "maxMs": 1,
+        "over10ms": 0
+      },
+      "POST /api/requests": {
+        "samples": 7,
+        "p50Ms": 2,
+        "p95Ms": 3,
+        "maxMs": 3,
+        "over10ms": 0
+      },
+      "POST /api/requests/REDACTED/submit": {
+        "samples": 4,
+        "p50Ms": 2,
+        "p95Ms": 2,
+        "maxMs": 2,
+        "over10ms": 0
+      },
+      "POST /api/requests/REDACTED/decision": {
+        "samples": 2,
+        "p50Ms": 3,
+        "p95Ms": 3,
+        "maxMs": 3,
+        "over10ms": 0
+      },
+      "PATCH /api/requests/REDACTED": {
+        "samples": 1,
+        "p50Ms": 2,
+        "p95Ms": 2,
+        "maxMs": 2,
+        "over10ms": 0
+      },
+      "DELETE /api/requests/REDACTED": {
+        "samples": 1,
+        "p50Ms": 2,
+        "p95Ms": 2,
+        "maxMs": 2,
+        "over10ms": 0
+      },
+      "GET /api/requests/REDACTED": {
+        "samples": 7,
+        "p50Ms": 2,
+        "p95Ms": 2,
+        "maxMs": 2,
+        "over10ms": 0
+      },
+      "GET /api/requests/REDACTED/audit": {
+        "samples": 3,
+        "p50Ms": 2,
+        "p95Ms": 3,
+        "maxMs": 3,
+        "over10ms": 0
+      },
+      "GET /api/requests/REDACTED/report": {
+        "samples": 3,
+        "p50Ms": 3,
+        "p95Ms": 3,
+        "maxMs": 3,
+        "over10ms": 0
+      },
+      "DELETE /api/session": {
+        "samples": 1,
+        "p50Ms": 1,
+        "p95Ms": 1,
+        "maxMs": 1,
+        "over10ms": 0
+      },
+      "GET /api/session": {
+        "samples": 3,
+        "p50Ms": 0,
+        "p95Ms": 1,
+        "maxMs": 1,
+        "over10ms": 0
+      },
+      "GET /api/requests": {
+        "samples": 6,
+        "p50Ms": 3,
+        "p95Ms": 3,
+        "maxMs": 3,
+        "over10ms": 0
+      }
+    },
+    "invocationErrors": 0,
+    "freeCpuTargetMs": 10,
+    "allObservedRequestsWithinTarget": true
+  },
+  "browser": {
+    "passed": 10,
+    "batches": [
+      {
+        "file": "association",
+        "project": "desktop",
+        "stats": {
+          "startTime": "2026-10-26T01:10:55.223Z",
+          "duration": 14717.119999999999,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "file": "booking",
+        "project": "desktop",
+        "stats": {
+          "startTime": "2026-10-26T01:12:15.521Z",
+          "duration": 10442.103000000001,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "file": "association",
+        "project": "mobile",
+        "stats": {
+          "startTime": "2026-10-26T01:13:31.564Z",
+          "duration": 15857.613,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "file": "booking",
+        "project": "mobile",
+        "stats": {
+          "startTime": "2026-10-26T01:14:53.246Z",
+          "duration": 11898.778,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      {
+        "file": "journey",
+        "project": "both",
+        "stats": {
+          "startTime": "2026-10-26T01:16:10.928Z",
+          "duration": 17585.439000000002,
+          "expected": 2,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      }
+    ]
+  },
+  "local": {
+    "postgresTestsPassed": 63,
+    "workerdSmoke": "passed",
+    "typecheck": "passed"
+  },
+  "hostedConcurrency": {
+    "at": "2026-10-26T01:13:07.084Z",
+    "origin": "https://operations-workflows-staging.vanya-matyushkin.workers.dev",
+    "version": "d4ca54cc-879a-40fc-b7b2-e3e2912fa3c3",
+    "requests": 39,
+    "status": "passed",
+    "checks": [
+      "competing holds: exactly one winner",
+      "same-key concurrent booking returns identical receipt",
+      "changed payload is rejected",
+      "50-row CSV apply race commits once",
+      "50 charges/payments reconciled with document generation",
+      "20 retained 50-row plans and rejection of the 21st",
+      "read-after-write and no-store on every response"
+    ]
+  },
+  "publicSmoke": {
+    "generatedAt": "2026-10-26T01:14:35.514Z",
+    "origin": "https://operations-workflows-staging.vanya-matyushkin.workers.dev",
+    "deploymentVersion": "d4ca54cc-879a-40fc-b7b2-e3e2912fa3c3",
+    "status": "passed",
+    "sourceHash": "689fbd5febf1be4dbf360dd7f5c32c8b172490ddd3c900d4e64e82debb124791",
+    "durationMs": 2893,
+    "checks": [
+      "HTTPS API and secure opaque session",
+      "Idempotent replay, conflicting payload rejection, CSRF and employee authorization",
+      "Draft edit and atomic deletion through the hosted database transport",
+      "Persisted manager approval, one creation audit and no absent-worker jobs",
+      "Observer write denial, cross-tenant denial and session revocation",
+      "Static evidence page available independently of the API"
+    ]
+  },
+  "access": {
+    "at": "2026-10-26T01:13:54.152Z",
+    "identity": {
+      "current_user": "desk_app",
+      "current_database": "workflow_staging"
+    },
+    "checks": [
+      "UPDATE association_revisions denied",
+      "DELETE association_revisions denied",
+      "TRUNCATE association_revisions denied",
+      "UPDATE booking_revisions denied",
+      "DELETE booking_revisions denied",
+      "TRUNCATE booking_revisions denied"
+    ],
+    "connections": [
+      {
+        "state": "active",
+        "count": 1
+      },
+      {
+        "state": "idle",
+        "count": 14
+      }
+    ],
+    "limits": {
+      "max_connections": "901",
+      "idle_in_transaction": 0
+    }
+  },
+  "isolation": [
+    {
+      "origin": "https://operations-workflows-staging.vanya-matyushkin.workers.dev",
+      "status": 200,
+      "version": "d4ca54cc-879a-40fc-b7b2-e3e2912fa3c3",
+      "cache": "no-store",
+      "cloudflareCache": null,
+      "body": {
+        "status": "ok",
+        "backgroundMode": "disabled"
+      }
+    },
+    {
+      "origin": "https://operations-desk-reliability.vanya-matyushkin.workers.dev",
+      "status": 200,
+      "version": "1697a7f1-83d0-40ea-8059-7067f9f7b171",
+      "cache": "no-store",
+      "cloudflareCache": null,
+      "body": {
+        "status": "ok",
+        "backgroundMode": "disabled"
+      }
+    }
+  ],
+  "limitations": [
+    "Observed sample, not a guarantee for every future invocation or sustained load",
+    "Existing public quotas unchanged: 4 demo starts/minute, 90 API requests/minute, 60/day",
+    "HTTPS database pool is separate from the unchanged Hyperdrive soft limit",
+    "No migration, paid upgrade, real payments or email; original deployment unchanged"
+  ]
+}

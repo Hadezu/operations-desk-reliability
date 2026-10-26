@@ -1,3 +1,4 @@
+import { revisionCommand } from "./revision-command.js";
 import { z } from "zod";
 import type { Database } from "./db.js";
 import type { Identity } from "./auth.js";
@@ -52,6 +53,7 @@ const Input = z.discriminatedUnion("action", [
   z.object({ action: z.literal("refresh") }).strict(),
 ]);
 export function prepareBookingValidation() {
+  Input.safeParse({ action: "refresh" });
   for (const schema of Input.options) schema.safeParse({});
 }
 function expire(s: BookingState, now: number) {
@@ -127,91 +129,84 @@ export async function bookingCommand(
   if (!key || !/^[\w-]{8,100}$/.test(key))
     reject("INVALID_IDEMPOTENCY_KEY", 400);
   const fingerprint = await hash(JSON.stringify(input));
-  return db.$transaction(async (tx) => {
-    await tx.$queryRaw`SELECT id FROM organizations WHERE id=${actor.organizationId}::uuid FOR UPDATE`;
-    const prior = await tx.$queryRaw<
-      { fingerprint: string; outcome: unknown }[]
-    >`SELECT fingerprint,outcome FROM booking_revisions WHERE organization_id=${actor.organizationId}::uuid AND actor_id=${actor.memberId}::uuid AND command_key=${key}`;
-    if (prior.length) {
-      if (prior[0].fingerprint !== fingerprint) reject("IDEMPOTENCY_MISMATCH");
-      return prior[0].outcome;
-    }
-    const rows = await tx.$queryRaw<
-      { revision: number; state: BookingState }[]
-    >`SELECT revision,state FROM booking_revisions WHERE organization_id=${actor.organizationId}::uuid ORDER BY revision DESC LIMIT 1`;
-    const [{ now }] = await tx.$queryRaw<
-      { now: Date }[]
-    >`SELECT clock_timestamp() AS now`;
-    const s = rows[0]?.state ?? empty();
-    const revision = (rows[0]?.revision ?? 0) + 1;
-    if (revision > 200) reject("DEMO_LIMIT", 429);
-    expire(s, now.getTime());
-    let booking: string | undefined;
-    if (input.action === "hold") {
-      const start = Date.parse(input.start),
-        end = Date.parse(input.end);
-      if (
-        start < now.getTime() ||
-        end <= start ||
-        end - start > 86400000 ||
-        start - now.getTime() > 365 * 86400000
-      )
-        reject("INVALID_INTERVAL", 400);
-      if (
-        s.bookings.some(
-          (b) =>
-            b.resource === input.resource &&
-            ["HELD", "CONFIRMED"].includes(b.status) &&
-            Date.parse(b.start) < end &&
-            Date.parse(b.end) > start,
+  return revisionCommand(
+    db,
+    actor,
+    "booking",
+    key,
+    fingerprint,
+    input.action,
+    empty,
+    async (s, revision, now) => {
+      expire(s, now.getTime());
+      let booking: string | undefined;
+      if (input.action === "hold") {
+        const start = Date.parse(input.start),
+          end = Date.parse(input.end);
+        if (
+          start < now.getTime() ||
+          end <= start ||
+          end - start > 86400000 ||
+          start - now.getTime() > 365 * 86400000
         )
-      )
-        reject("RESOURCE_UNAVAILABLE");
-      if (s.bookings.length >= 50) reject("DEMO_LIMIT", 429);
-      booking = crypto.randomUUID();
-      s.bookings.push({
-        id: booking,
-        resource: input.resource,
-        owner: actor.memberId,
-        start: input.start,
-        end: input.end,
-        expires: new Date(now.getTime() + holdMs).toISOString(),
-        status: "HELD",
-      });
-    } else if (input.action === "cancel") {
-      const b = s.bookings.find((b) => b.id === input.booking);
-      if (!b) reject("BOOKING_NOT_FOUND", 404);
-      if (actor.role !== "MANAGER" && b.owner !== actor.memberId) denied();
-      if (b.status === "HELD") b.status = "CANCELLED";
-      else if (b.status === "CONFIRMED") b.status = "REFUND_PENDING";
-      else if (!["CANCELLED", "REFUND_PENDING", "REFUNDED"].includes(b.status))
-        reject("INVALID_TRANSITION");
-      booking = b.id;
-    } else if (input.action === "event") {
-      const b = s.bookings.find((b) => b.id === input.booking);
-      if (!b) reject("BOOKING_NOT_FOUND", 404);
-      const old = s.events.find((e) => e.id === input.event);
-      if (old && (old.booking !== input.booking || old.kind !== input.kind))
-        reject("EVENT_CONFLICT");
-      if (!old) {
-        const event: Event = {
-          id: input.event,
-          booking: input.booking,
-          kind: input.kind,
-          outcome: "deferred",
-        };
-        s.events.push(event);
-        processEvent(s, event);
+          reject("INVALID_INTERVAL", 400);
+        if (
+          s.bookings.some(
+            (b) =>
+              b.resource === input.resource &&
+              ["HELD", "CONFIRMED"].includes(b.status) &&
+              Date.parse(b.start) < end &&
+              Date.parse(b.end) > start,
+          )
+        )
+          reject("RESOURCE_UNAVAILABLE");
+        if (s.bookings.length >= 50) reject("DEMO_LIMIT", 429);
+        booking = crypto.randomUUID();
+        s.bookings.push({
+          id: booking,
+          resource: input.resource,
+          owner: actor.memberId,
+          start: input.start,
+          end: input.end,
+          expires: new Date(now.getTime() + holdMs).toISOString(),
+          status: "HELD",
+        });
+      } else if (input.action === "cancel") {
+        const b = s.bookings.find((b) => b.id === input.booking);
+        if (!b) reject("BOOKING_NOT_FOUND", 404);
+        if (actor.role !== "MANAGER" && b.owner !== actor.memberId) denied();
+        if (b.status === "HELD") b.status = "CANCELLED";
+        else if (b.status === "CONFIRMED") b.status = "REFUND_PENDING";
+        else if (
+          !["CANCELLED", "REFUND_PENDING", "REFUNDED"].includes(b.status)
+        )
+          reject("INVALID_TRANSITION");
+        booking = b.id;
+      } else if (input.action === "event") {
+        const b = s.bookings.find((b) => b.id === input.booking);
+        if (!b) reject("BOOKING_NOT_FOUND", 404);
+        const old = s.events.find((e) => e.id === input.event);
+        if (old && (old.booking !== input.booking || old.kind !== input.kind))
+          reject("EVENT_CONFLICT");
+        if (!old) {
+          const event: Event = {
+            id: input.event,
+            booking: input.booking,
+            kind: input.kind,
+            outcome: "deferred",
+          };
+          s.events.push(event);
+          processEvent(s, event);
+        }
+        if (s.events.length > 100) reject("DEMO_LIMIT", 429);
+        booking = b.id;
       }
-      if (s.events.length > 100) reject("DEMO_LIMIT", 429);
-      booking = b.id;
-    }
-    const outcome = {
-      revision,
-      action: input.action,
-      booking: booking ?? null,
-    };
-    await tx.$executeRaw`INSERT INTO booking_revisions(organization_id,revision,actor_id,operation,command_key,fingerprint,state,outcome) VALUES(${actor.organizationId}::uuid,${revision},${actor.memberId}::uuid,${input.action},${key},${fingerprint},${JSON.stringify(s)}::jsonb,${JSON.stringify(outcome)}::jsonb)`;
-    return outcome;
-  });
+      const outcome = {
+        revision,
+        action: input.action,
+        booking: booking ?? null,
+      };
+      return outcome;
+    },
+  );
 }

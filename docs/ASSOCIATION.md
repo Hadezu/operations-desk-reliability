@@ -20,13 +20,13 @@ Only `Demo ` names, `M` member IDs and `@example.invalid` emails are accepted. N
 flowchart LR
   UI[Next.js DE / PL interface] --> HTTP[Session + origin + CSRF + role checks]
   HTTP --> Logic[Bounded import and accounting commands]
-  Logic --> Lock[PostgreSQL organization row lock]
+  Logic --> Lock[Read revision snapshot and compute next state]
   Lock --> Revision[Append-only state revision + command receipt]
   Revision --> UI
   UI --> Export[Document preview / CSV / discrepancy JSON]
 ```
 
-The existing Operations Desk API and database host this independent module. No Redis or worker is required for its operations. PostgreSQL locks serialize writes within one organization; the revision, complete state and command receipt commit in one transaction. Concurrent callers using the same key receive the original outcome. A key with different validated input is rejected. Import preview stores the exact rows and a membership-version fingerprint, so intervening member changes require another preview.
+The existing Operations Desk API and database host this independent module. No Redis or worker is required for its operations. The revision, complete state and command receipt commit in one atomic INSERT. The existing organization/revision primary key allows only one writer to append the next revision. A losing writer rereads one consistent receipt/state snapshot and recomputes its command, with at most three attempts; sustained contention returns VERSION_CONFLICT without partial writes. Concurrent callers using the same key receive the original outcome. A key with different validated input is rejected. Import preview stores the exact rows and a membership-version fingerprint, so intervening member changes require another preview.
 
 Membership categories are regular (€120) and reduced (€60) per selected month; active members receive charges, paused/left members do not. Charging the same member/month twice does not duplicate a charge. Periodic billing is manually initiated for each month, not a scheduler. Currency is EUR in both languages.
 

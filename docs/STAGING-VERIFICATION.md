@@ -1,5 +1,7 @@
 # Public workflow test environment — 25 October 2026
 
+Historical baseline. The [26 October CPU optimization and repeated hosted checks](STAGING-CPU-OPTIMIZATION.md) supersede the CPU result and transport description below.
+
 [Association Operations](https://operations-workflows-staging.vanya-matyushkin.workers.dev/association/) · [Booking & Payment Reliability](https://operations-workflows-staging.vanya-matyushkin.workers.dev/booking/)
 
 Both demonstrations are hosted in an isolated synthetic test environment. They do not depend on a local computer. No paid plan, real payment provider or email delivery was enabled. This is not a client deployment or production acceptance.
@@ -47,6 +49,6 @@ Use the local setup in [Delivery & Recovery](DELIVERY-RECOVERY.md). To target th
 
 For deployment, use `npx wrangler deploy --config wrangler.staging.jsonc`. This explicit configuration prevents accidental replacement of the original Worker. Keep the owner URL in an ignored local file or secret manager. Deploy only the application-role URL as the encrypted `NEON_DATABASE_URL`; never publish raw cookies, credential files, backup rows or tail captures. Retain the hosted version, Git SHA and sanitized observations for each release.
 
-## Merge order and permanent links
+## Historical merge order and permanent links
 
-Profile #11 and #12 now share the same complete-project / paid-first-stage introduction. Merge the reviewed profile #11 and application #3 first, then profile #12 and portfolio #5. The latter PRs use `blob/main` document URLs, which become valid when application #3 lands. Until then they remain draft and must not be published as completed main navigation. The direct hosted demo URLs already work independently of branch deletion. No PR was merged by the agent.
+Profile #11 and #12 now share the same complete-project / paid-first-stage introduction. Merge the reviewed profile #11 and application #3 first, then profile #12 and portfolio #5. The latter PRs use `blob/main` document URLs, which become valid when application #3 lands. Until then they remain draft and must not be published as completed main navigation. The direct hosted demo URLs already work independently of branch deletion. These statements describe the pre-publication checkpoint. The four PRs were subsequently merged with owner authorization; permanent main links are now live.
