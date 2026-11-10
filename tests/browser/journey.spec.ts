@@ -20,12 +20,62 @@ test("employee → manager → observer: persisted approval, audit and tenant sw
   ).toBeVisible();
   const title = `Team monitors ${info.project.name}`;
   await page.getByRole("button", { name: "New request" }).click();
-  await page.getByRole("textbox", { name: "Title", exact: true }).fill(title);
+  const dialog = page.getByRole("dialog");
+  const draftTitle = dialog.getByRole("textbox", {
+    name: "Title",
+    exact: true,
+  });
+  const description = dialog.getByRole("textbox", {
+    name: "Why is this needed?",
+  });
+  const saveDraft = dialog.getByRole("button", { name: "Save draft" });
+  const createAttempts: string[] = [];
+  page.on("request", (request) => {
+    if (
+      request.method() === "POST" &&
+      new URL(request.url()).pathname === "/api/requests"
+    )
+      createAttempts.push(request.url());
+  });
+  await draftTitle.fill("  IT  ");
   await page.getByRole("spinbutton", { name: "Amount (EUR)" }).fill("980.50");
-  await page
-    .getByRole("textbox", { name: "Why is this needed?" })
-    .fill("Two monitors for the design team to review layouts.");
-  await page.getByRole("button", { name: "Save draft" }).click();
+  await description.fill("Two monitors for the design team to review layouts.");
+  await saveDraft.click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Enter a title with at least 3 characters",
+  );
+  await expect(draftTitle).toBeFocused();
+  expect(createAttempts).toHaveLength(0);
+  await draftTitle.fill(`  ${title}  `);
+  await description.fill("  QA  ");
+  await saveDraft.click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Explain why this is needed in at least 5 characters",
+  );
+  await expect(description).toBeFocused();
+  expect(createAttempts).toHaveLength(0);
+  await description.fill(
+    "  Two monitors for the design team to review layouts.  ",
+  );
+  const [saved] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname === "/api/requests",
+    ),
+    saveDraft.click(),
+  ]);
+  expect(saved.ok()).toBe(true);
+  expect(saved.request().postDataJSON()).toMatchObject({
+    title,
+    description: "Two monitors for the design team to review layouts.",
+    amountCents: 98050,
+  });
+  expect(await saved.json()).toMatchObject({
+    title,
+    status: "DRAFT",
+    version: 1,
+  });
   await page.getByRole("button", { name: "Submit for review" }).click();
   await expect(
     page.getByRole("dialog").getByText("submitted", { exact: true }),
@@ -100,6 +150,12 @@ test("employee → manager → observer: persisted approval, audit and tenant sw
   await expect(
     page.getByRole("button", { name: title, exact: true }),
   ).toBeVisible();
+  await page.getByRole("button", { name: title, exact: true }).click();
+  await expect(dialog.getByText("approved", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByText("request approved", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Close details" }).click();
   await page.screenshot({
     path: `evidence/${info.project.name}-register.png`,
     fullPage: true,

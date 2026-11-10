@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { repositoryUrl } from "./project";
 import type { z } from "zod";
 import {
-  RequestRecord,
+  CreateRequest,
+  type RequestRecord,
   type RoleName,
 } from "../../../packages/contracts/index";
 
@@ -59,11 +60,21 @@ class ApiError extends Error {
   }
 }
 
+const draftFieldMessages: Record<string, string> = {
+  title:
+    "Enter a title with at least 3 characters, excluding surrounding spaces.",
+  description:
+    "Explain why this is needed in at least 5 characters, excluding surrounding spaces.",
+  category: "Choose a request category.",
+  amountCents: "Enter an amount between €0.01 and €100,000.00.",
+};
+
 export default function Desk() {
   const [session, setSession] = useState<Session | null>(null);
   const [starting, setStarting] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [draftError, setDraftError] = useState("");
   const [notice, setNotice] = useState("");
   const [rows, setRows] = useState<RecordRow[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -215,26 +226,41 @@ export default function Desk() {
     selected.ownerId !== session.identity.memberId;
   function close() {
     dialog.current?.close();
+    setDraftError("");
     setSelected(null);
     setCreating(false);
     setEditing(false);
   }
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const payload = {
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const draft = CreateRequest.safeParse({
       title: String(data.get("title")),
       description: String(data.get("description")),
       category: String(data.get("category")),
       amountCents: Math.round(Number(data.get("amount")) * 100),
-    };
+    });
+    if (!draft.success) {
+      const field = String(draft.error.issues[0]?.path[0]);
+      setError("");
+      setDraftError(
+        draftFieldMessages[field] ?? "Check the request fields and try again.",
+      );
+      const control = form.elements.namedItem(
+        field === "amountCents" ? "amount" : field,
+      );
+      if (control instanceof HTMLElement) control.focus();
+      return;
+    }
+    setDraftError("");
     await run(async () => {
       const saved = await api<RecordRow>(
         editing && selected ? `/api/requests/${selected.id}` : "/api/requests",
         editing ? "PATCH" : "POST",
         editing && selected
-          ? { ...payload, version: selected.version }
-          : payload,
+          ? { ...draft.data, version: selected.version }
+          : draft.data,
       );
       await list();
       await details(saved);
@@ -662,8 +688,17 @@ export default function Desk() {
           </button>
         </div>
         {creating || editing ? (
-          <form onSubmit={save} className="request-form">
+          <form
+            onSubmit={save}
+            onInput={() => setDraftError("")}
+            className="request-form"
+          >
             <h2>{editing ? "Edit draft" : "What do you need?"}</h2>
+            {draftError && (
+              <p className="message error" role="alert">
+                {draftError}
+              </p>
+            )}
             <label>
               Title
               <input
